@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Febris, self-hosted XR and simulation training</title>
+<meta name="description" content="Febris is an open source training and simulation platform. Self-host a delivery node and connect PC, mobile and XR clients.">
+<style>
+:root {
+  --ink: #14181c; --ink-soft: #4a545e; --ink-faint: #79848f;
+  --ground: #fbfaf7; --panel: #ffffff; --line: #e3e0d9;
+  --accent: #0f6d67; --accent-soft: #e6f1f0;
+  --warn-bg: #fdf6e6; --warn-line: #e8d5a3; --warn-ink: #6b5310;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e8eaec; --ink-soft: #a3adb6; --ink-faint: #78838d;
+    --ground: #14171a; --panel: #1b1f23; --line: #2c3238;
+    --accent: #4fbfb4; --accent-soft: #16302e;
+    --warn-bg: #2a2413; --warn-line: #5c4c1e; --warn-ink: #e3c877;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e8eaec; --ink-soft: #a3adb6; --ink-faint: #78838d;
+  --ground: #14171a; --panel: #1b1f23; --line: #2c3238;
+  --accent: #4fbfb4; --accent-soft: #16302e;
+  --warn-bg: #2a2413; --warn-line: #5c4c1e; --warn-ink: #e3c877;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font-family: var(--sans); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 0 1.5rem; }
+header.top { border-bottom: 1px solid var(--line); padding: 1.1rem 0; }
+header.top .wrap { display: flex; align-items: baseline; gap: 1.25rem; flex-wrap: wrap; }
+.brand { font-weight: 650; letter-spacing: -0.01em; font-size: 1.05rem; color: var(--ink); text-decoration: none; }
+.brand span { color: var(--accent); }
+nav.top { margin-left: auto; display: flex; gap: 1.25rem; }
+nav.top a { color: var(--ink-soft); text-decoration: none; font-size: 0.92rem; }
+nav.top a:hover { color: var(--accent); }
+.hero { padding: 4rem 0 3rem; border-bottom: 1px solid var(--line); }
+.hero h1 { font-size: clamp(2rem, 5vw, 2.9rem); line-height: 1.15; margin: 0 0 1rem;
+           letter-spacing: -0.025em; text-wrap: balance; }
+.hero p.lede { font-size: 1.15rem; color: var(--ink-soft); max-width: 44rem; margin: 0 0 1.75rem; }
+.cta { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.btn { display: inline-block; padding: 0.6rem 1.15rem; border-radius: 6px; text-decoration: none;
+       font-size: 0.95rem; font-weight: 550; border: 1px solid transparent; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { border-color: var(--line); color: var(--ink); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+section { padding: 3.25rem 0; border-bottom: 1px solid var(--line); }
+section h2 { font-size: 1.5rem; letter-spacing: -0.015em; margin: 0 0 0.5rem; }
+section p.sub { color: var(--ink-soft); margin: 0 0 2rem; max-width: 46rem; }
+.grid { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); }
+.card { scroll-margin-top: 1.5rem; background: var(--panel); border: 1px solid var(--line); border-radius: 9px;
+        padding: 1.35rem; display: flex; flex-direction: column; }
+.card h3 { margin: 0 0 0.15rem; font-size: 1.08rem; letter-spacing: -0.01em; }
+.card .plat { font-size: 0.8rem; color: var(--ink-faint); margin: 0 0 0.7rem; }
+.card p.desc { margin: 0 0 1.1rem; color: var(--ink-soft); font-size: 0.93rem; flex: 1; }
+.pill { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em;
+        text-transform: uppercase; padding: 0.16rem 0.5rem; border-radius: 999px; }
+.pill-live { background: var(--accent-soft); color: var(--accent); }
+.pill-soon { background: var(--line); color: var(--ink-faint); }
+.meta { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-faint);
+        border-top: 1px solid var(--line); padding-top: 0.85rem; margin-top: 0.4rem; }
+.meta div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.12rem 0; }
+.meta .hash { word-break: break-all; text-align: right; }
+.note { background: var(--warn-bg); border: 1px solid var(--warn-line); color: var(--warn-ink);
+        border-radius: 7px; padding: 0.8rem 1rem; font-size: 0.88rem; }
+pre { background: var(--panel); border: 1px solid var(--line); border-radius: 7px;
+      padding: 0.85rem 1rem; overflow-x: auto; font-family: var(--mono); font-size: 0.85rem;
+      margin: 0.5rem 0 0; }
+code { font-family: var(--mono); font-size: 0.88em; }
+footer { padding: 2.5rem 0 3.5rem; color: var(--ink-faint); font-size: 0.88rem; }
+footer a { color: var(--ink-soft); }
+a { color: var(--accent); }
+table.kinds { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+table.kinds th, table.kinds td { text-align: left; padding: 0.5rem 0.75rem 0.5rem 0;
+                                  border-bottom: 1px solid var(--line); }
+table.kinds th { color: var(--ink-faint); font-weight: 600; font-size: 0.78rem;
+                 text-transform: uppercase; letter-spacing: 0.04em; }
+.flow { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+        counter-reset: step; }
+.flow > div { position: relative; padding-top: 2.4rem; }
+.flow > div::before {
+  counter-increment: step; content: counter(step);
+  position: absolute; top: 0; left: 0;
+  width: 1.7rem; height: 1.7rem; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent);
+  font-family: var(--mono); font-size: 0.85rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.flow h3 { margin: 0 0 0.35rem; font-size: 1rem; }
+.flow p { margin: 0; color: var(--ink-soft); font-size: 0.92rem; }
+.features { display: grid; gap: 0 2.5rem; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); }
+.features dt { font-weight: 600; margin-top: 1.4rem; font-size: 0.97rem; }
+.features dt:first-of-type { margin-top: 0; }
+.features dd { margin: 0.2rem 0 0; color: var(--ink-soft); font-size: 0.92rem; }
+.status { list-style: none; padding: 0; margin: 0; }
+.status li { padding: 0.55rem 0 0.55rem 1.5rem; border-bottom: 1px solid var(--line);
+             position: relative; color: var(--ink-soft); font-size: 0.93rem; }
+.status li::before { content: ""; position: absolute; left: 0; top: 1.05rem;
+                     width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--accent); }
+.status li:last-child { border-bottom: 0; }
+.status strong { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="index.html">Febris<span>.</span></a>
+  <nav class="top">
+    <a href="index.html#downloads">Downloads</a>
+    <a href="index.html#run">Self-host</a>
+    <a href="https://github.com/TRget88/Febris_Node">Source</a>
+  </nav>
+</div></header>
+
+<div class="hero"><div class="wrap">
+  <h1>XR and simulation training, on infrastructure you own.</h1>
+  <p class="lede">Febris delivers training to headsets and desktops, and records what actually
+  happened during the session as xAPI. One node owns everything it needs: identity and accounts,
+  cohorts, curricula and modules, a statement store, usage analytics, and the artifact store that
+  distributes the client software to devices. There is no Febris account, no licence key, and no
+  service the maintainer operates.</p>
+  <div class="cta">
+    <a class="btn btn-primary" href="#downloads">Get the software</a>
+    <a class="btn btn-ghost" href="#run">Run a node</a>
+  </div>
+</div></div>
+
+
+<section id="how"><div class="wrap">
+  <h2>How it fits together</h2>
+  <p class="sub">Three pieces. A server you run, clients that deliver the training, and an SDK
+  for the people building the simulations.</p>
+  <div class="flow">
+    <div>
+      <h3>The node</h3>
+      <p>An ASP.NET Core server you host. It holds your accounts and curricula, ingests xAPI
+      statements from devices, and hands out the client software those devices run.</p>
+    </div>
+    <div>
+      <h3>The clients</h3>
+      <p>A Windows suite for desktop simulation, and an Android pair where a Mobile Server
+      distributes modules to headsets over a direct WiFi link and relays their records back.</p>
+    </div>
+    <div>
+      <h3>The SDK</h3>
+      <p>Drop it into your own simulation to emit conformant statements. C# and C++ produce
+      byte-identical output at the same version, so a mixed estate stays consistent.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="node"><div class="wrap">
+  <h2>What a node gives you</h2>
+  <p class="sub">All of this is code in the repository rather than a roadmap. Where something is
+  a seam rather than a finished feature, the project says so in its own README.</p>
+  <dl class="features">
+    <dt>Learning records that survive audit</dt>
+    <dd>A dedicated xAPI store with its own database, statements deduplicated on the identifier
+    their producer assigned, and the raw submission preserved alongside the parsed form.</dd>
+
+    <dt>Cohorts, curricula and modules</dt>
+    <dd>Organise learners, group them, assign curricula, and version the module archives that
+    devices pull down.</dd>
+
+    <dt>Client distribution built in</dt>
+    <dd>The node is the artifact store. Devices ask it for the current build and it serves the
+    bytes, checksum recorded, so a headset updates without anyone visiting a website.</dd>
+
+    <dt>Transport hardening the operator controls</dt>
+    <dd>HSTS, an exact-match CORS allow-list, frame and content-type headers, all from one
+    configuration section, with defaults chosen so a node behind a TLS proxy does not loop.</dd>
+
+    <dt>Rate limiting that ships on by default</dt>
+    <dd>Per-IP endpoint rules returning 429, tuned tightly on login, password reset and token
+    endpoints, retunable without a rebuild.</dd>
+
+    <dt>Nothing phones home</dt>
+    <dd>Federation to a hub exists as an opt-in gate and defaults to off. Learning records have
+    no upward path at all. An air-gapped site is a supported deployment, not an afterthought.</dd>
+  </dl>
+</div></section>
+
+<section id="run"><div class="wrap">
+  <h2>Run one</h2>
+  <p class="sub">A Docker Compose stack: Postgres 16, Valkey 8, the API, the portal, and a Caddy
+  reverse proxy that issues its own certificate for local use.</p>
+  <pre>git clone https://github.com/TRget88/Febris_Node.git febris-node &amp;&amp; cd febris-node
+./selfhost/generate-env.sh
+docker compose up -d --build</pre>
+  <p class="sub" style="margin-top:1.25rem">The generated environment file prints your first
+  login. Everything else, including backups, upgrades, TLS and going to production, is in
+  <a href="https://github.com/TRget88/Febris_Node/blob/main/SELF_HOSTING.md">SELF_HOSTING.md</a>.</p>
+  <table class="kinds" style="margin-top:2rem">
+    <thead><tr><th>Component</th><th>Platform</th><th>Status</th></tr></thead>
+    <tbody><tr><td>PC Client Suite</td><td>Windows 10 or later, x64</td><td>Not yet published</td></tr><tr><td>Mobile Server</td><td>Android 10 or later, sideloaded</td><td>Not yet published</td></tr><tr><td>Mobile Companion</td><td>Android 8 or later, installed onto the headset</td><td>Not yet published</td></tr><tr><td>Simulation SDK for C#</td><td>.NET Standard 2.0</td><td>Published</td></tr><tr><td>Simulation SDK for C++</td><td>Windows x64, MSVC v143, C++17</td><td>Published</td></tr></tbody>
+  </table>
+</div></section>
+
+<section id="status"><div class="wrap">
+  <h2>Where the project actually is</h2>
+  <p class="sub">Pre-1.0, and honest about it. Read this before you build on it.</p>
+  <ul class="status">
+    <li><strong>Solo maintainer.</strong> Expect slow review and no on-call.</li>
+    <li><strong>Interfaces may change before 1.0</strong>, including configuration keys and API
+    routes. There is no long-term-support branch.</li>
+    <li><strong>Upgrades run migrations at startup and there is no downgrade path yet.</strong>
+    Take a database backup first.</li>
+    <li><strong>The test suites are green</strong> and are the honest measure of what is pinned.
+    They ship in the repository so you can run them yourself.</li>
+    <li><strong>The Windows and mobile clients are not published yet.</strong> The node's
+    distribution surface works, but until those clients ship it has little to hand out.</li>
+  </ul>
+</div></section>
+
+<section id="downloads"><div class="wrap">
+  <h2>Downloads</h2>
+  <p class="sub">Every version, size and checksum below is read straight from the distribution
+  feed, so this page describes exactly what the feed serves and nothing else. 2 of 5 components
+  are published today, and the rest say so plainly rather than being hidden.</p>
+  <div class="grid"><div class="card" id="pc"><span class="pill pill-soon">Not yet published</span> <h3>PC Client Suite</h3><p class="plat">Windows 10 or later, x64</p> <p class="desc">The Windows desktop suite: launcher, module manager, screen recorder, statement manager and progress bar. Runs the simulation session on the learner&#x27;s machine and reports back to your node.</p> <p class="note">This client is built but not yet published. It is gated on release signing, and will appear here automatically once the feed carries it.</p></div><div class="card" id="mobile-server"><span class="pill pill-soon">Not yet published</span> <h3>Mobile Server</h3><p class="plat">Android 10 or later, sideloaded</p> <p class="desc">The Android MDM server. Pairs with headsets over WiFi Direct, distributes module archives, and relays learning records back to your node.</p> <p class="note">This client is built but not yet published. It is gated on release signing, and will appear here automatically once the feed carries it.</p></div><div class="card" id="mobile-companion"><span class="pill pill-soon">Not yet published</span> <h3>Mobile Companion</h3><p class="plat">Android 8 or later, installed onto the headset</p> <p class="desc">The headset companion. Captures the session on-device and hands statements to the Mobile Server over a direct peer link.</p> <p class="note">Not a browser download. The Companion is delivered to the headset by your Mobile Server over a direct link, so it installs itself once the Server is paired and pointed at your node.</p></div><div class="card" id="sdk-csharp"><span class="pill pill-live">Version 0.1.0</span> <h3>Simulation SDK for C#</h3><p class="plat">.NET Standard 2.0</p> <p class="desc">Author conformant xAPI statements from a .NET simulation. Byte-identical output to the C++ SDK at the same minor version.</p> <div class="cta"><a class="btn btn-primary" href="https://api.nuget.org/v3-flatcontainer/febris.simulation.xapisdk/0.1.0/febris.simulation.xapisdk.0.1.0.nupkg">Download</a><a class="btn btn-ghost" href="https://www.nuget.org/packages/Febris.Simulation.XApiSdk">View on nuget.org</a></div><p class="plat" style="margin:0.9rem 0 0">Add it to a project</p><pre>dotnet add package Febris.Simulation.XApiSdk --version 0.1.0</pre> <div class="meta"><div><span>File</span><span class="hash">febris.simulation.xapisdk.0.1.0.nupkg</span></div><div><span>Size</span><span>48.0 KB</span></div><div><span>SHA-256</span><span class="hash">8d3666bc5748ab5472fcf1c57ac38fa61648b128ad30249a6f1aa0faebcac6cf</span></div></div></div><div class="card" id="sdk-cpp"><span class="pill pill-live">Version 0.1.0</span> <h3>Simulation SDK for C++</h3><p class="plat">Windows x64, MSVC v143, C++17</p> <p class="desc">The native twin of the C# SDK, with a flat C ABI for engines and hosts that cannot consume managed code. Verified byte-identical on every release.</p> <div class="cta"><a class="btn btn-primary" href="https://github.com/TRget88/Febris_SDK/releases/download/v0.1.0/febris-simulation-sdk-cpp-v0.1.0-win-x64.zip">Download</a><a class="btn btn-ghost" href="https://github.com/TRget88/Febris_SDK/releases">Browse the releases</a></div><p class="plat" style="margin:0.9rem 0 0">Register the vcpkg registry</p><pre>vcpkg-configuration.json -&gt; registries -&gt; https://github.com/TRget88/Febris_VcpkgRegistry</pre><p class="plat" style="margin:0.9rem 0 0">Then install</p><pre>vcpkg install febris-simulation-sdk</pre> <div class="meta"><div><span>File</span><span class="hash">febris-simulation-sdk-cpp-v0.1.0-win-x64.zip</span></div><div><span>Size</span><span>203.4 KB</span></div><div><span>SHA-256</span><span class="hash">2570817c6462ae616b16f1ad9b7b77c003fbfc0765b10da7460a9cce2237cf59</span></div></div></div></div>
+</div></section>
+
+<footer><div class="wrap">
+  <p>Febris is open source. The delivery node is AGPL-3.0, the SDKs are Apache-2.0, this site is MIT.</p>
+  <p>
+    <a href="https://github.com/TRget88/Febris_Node">Node</a> &middot;
+    <a href="https://github.com/TRget88/Febris_SDK">SDK</a> &middot;
+    <a href="https://github.com/TRget88/Febris_ClientDist">Distribution feed</a> &middot;
+    <a href="https://github.com/TRget88/Febris_Landing">This site</a>
+  </p>
+</div></footer>
+</body>
+</html>
