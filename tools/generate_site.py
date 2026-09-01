@@ -485,7 +485,7 @@ def build_index(manifest, docs):
     rows = "".join(
         '<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % (
             esc(k["name"]), esc(k["platform"]),
-            "Published" if by_kind.get(k["id"]) else "Not yet published")
+            "Published" if by_kind.get(k["id"]) else "Source only")
         for k in KINDS)
 
     body = """
