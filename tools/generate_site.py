@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Generate the Febris landing site from the client-dist feed manifest.
 
 The feed is the single source of truth. Every download card, version string, size and
@@ -21,7 +21,7 @@ import urllib.request
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import render_docs
 
-FEED_URL = "https://raw.githubusercontent.com/TRget88/Febris_ClientDist/main/manifest.json"
+FEED_URL = "https://raw.githubusercontent.com/Febris-XR/Febris_ClientDist/main/manifest.json"
 # Must match the custom domain configured in Settings -> Pages, and must be a name that can
 # legally hold a CNAME. The apex febr.is cannot: it carries the Google Workspace MX records,
 # and RFC 1912 forbids a CNAME coexisting with any other record at the same name.
@@ -72,10 +72,10 @@ KINDS = [
         "platform": "Windows x64, MSVC v143, C++17",
         "install": [
             ("Register the vcpkg registry", "vcpkg-configuration.json -> registries -> "
-             "https://github.com/TRget88/Febris_VcpkgRegistry"),
+             "https://github.com/Febris-XR/Febris_VcpkgRegistry"),
             ("Then install", "vcpkg install febris-simulation-sdk"),
         ],
-        "home": ("Browse the releases", "https://github.com/TRget88/Febris_SDK/releases"),
+        "home": ("Browse the releases", "https://github.com/Febris-XR/Febris_SDK/releases"),
     },
 ]
 
@@ -265,17 +265,17 @@ def page(title, body, depth=0):
     <a href="%supdates.html">Updates</a>
     <a href="%sabout.html">About</a>
     <a href="%sindex.html#run">Self-host</a>
-    <a href="https://github.com/TRget88/Febris_Node">Source</a>
+    <a href="https://github.com/Febris-XR/Febris_Node">Source</a>
   </nav>
 </div></header>
 %s
 <footer><div class="wrap">
   <p>Febris is open source. The delivery node is AGPL-3.0, the SDKs are Apache-2.0, this site is MIT.</p>
   <p>
-    <a href="https://github.com/TRget88/Febris_Node">Node</a> &middot;
-    <a href="https://github.com/TRget88/Febris_SDK">SDK</a> &middot;
-    <a href="https://github.com/TRget88/Febris_ClientDist">Distribution feed</a> &middot;
-    <a href="https://github.com/TRget88/Febris_Landing">This site</a>
+    <a href="https://github.com/Febris-XR/Febris_Node">Node</a> &middot;
+    <a href="https://github.com/Febris-XR/Febris_SDK">SDK</a> &middot;
+    <a href="https://github.com/Febris-XR/Febris_ClientDist">Distribution feed</a> &middot;
+    <a href="https://github.com/Febris-XR/Febris_Landing">This site</a>
   </p>
 </div></footer>
 </body>
@@ -543,12 +543,12 @@ def build_index(manifest, docs):
   <h2>Run one</h2>
   <p class="sub">A Docker Compose stack: Postgres 16, Valkey 8, the API, the portal, and a Caddy
   reverse proxy that issues its own certificate for local use.</p>
-  <pre>git clone https://github.com/TRget88/Febris_Node.git febris-node &amp;&amp; cd febris-node
+  <pre>git clone https://github.com/Febris-XR/Febris_Node.git febris-node &amp;&amp; cd febris-node
 ./selfhost/generate-env.sh
 docker compose up -d --build</pre>
   <p class="sub" style="margin-top:1.25rem">The generated environment file prints your first
   login. Everything else, including backups, upgrades, TLS and going to production, is in
-  <a href="https://github.com/TRget88/Febris_Node/blob/main/SELF_HOSTING.md">SELF_HOSTING.md</a>.</p>
+  <a href="https://github.com/Febris-XR/Febris_Node/blob/main/SELF_HOSTING.md">SELF_HOSTING.md</a>.</p>
   <table class="kinds" style="margin-top:2rem">
     <thead><tr><th>Component</th><th>Platform</th><th>Status</th></tr></thead>
     <tbody>%(rows)s</tbody>

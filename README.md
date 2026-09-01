@@ -1,6 +1,6 @@
-# Febris_Landing
+﻿# Febris_Landing
 
-The public front door for [Febris](https://github.com/TRget88/Febris_Node), an open source
+The public front door for [Febris](https://github.com/Febris-XR/Febris_Node), an open source
 training and simulation platform. This repository builds the site that tells people what Febris
 is and hands them the client software and SDKs.
 
@@ -8,7 +8,7 @@ is and hands them the client software and SDKs.
 
 The site is **generated from the distribution feed**, not hand written. `tools/generate_site.py`
 reads `manifest.json` from
-[Febris_ClientDist](https://github.com/TRget88/Febris_ClientDist) and renders `site/`. Every
+[Febris_ClientDist](https://github.com/Febris-XR/Febris_ClientDist) and renders `site/`. Every
 version string, file size, checksum and download link on the page comes from that manifest, so
 the page cannot claim something the feed does not actually serve.
 

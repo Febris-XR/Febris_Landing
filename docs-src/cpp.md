@@ -1,4 +1,4 @@
----
+﻿---
 title: C++ SDK
 anchor: docs-sdk-cpp
 summary: Consuming the native SDK through its flat C ABI: installing it, the calling conventions, and a minimal session.
@@ -19,14 +19,14 @@ Supported today: Windows x64, built with MSVC v143, C++17.
 The SDK is published two ways.
 
 Through vcpkg, using the Febris registry. Add the registry to your `vcpkg-configuration.json`,
-pointing at `https://github.com/TRget88/Febris_VcpkgRegistry`, then:
+pointing at `https://github.com/Febris-XR/Febris_VcpkgRegistry`, then:
 
 ```bash
 vcpkg install febris-simulation-sdk
 ```
 
 Or take the release bundle directly from the
-[Febris_SDK releases](https://github.com/TRget88/Febris_SDK/releases). It contains the DLL,
+[Febris_SDK releases](https://github.com/Febris-XR/Febris_SDK/releases). It contains the DLL,
 the import library and the public header. Every release also ships a `SHA256SUMS` file, and
 verifying the download against it is worth the few seconds.
 

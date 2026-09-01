@@ -167,7 +167,7 @@ pre.code { background: var(--panel); border: 1px solid var(--line); border-radiu
     <a href="../updates.html">Updates</a>
     <a href="../about.html">About</a>
     <a href="../index.html#run">Self-host</a>
-    <a href="https://github.com/TRget88/Febris_Node">Source</a>
+    <a href="https://github.com/Febris-XR/Febris_Node">Source</a>
   </nav>
 </div></header>
 
@@ -179,9 +179,9 @@ pre.code { background: var(--panel); border: 1px solid var(--line); border-radiu
 <p>Supported today: Windows x64, built with MSVC v143, C++17.</p>
 <h3 id="installing-it">Installing it</h3>
 <p>The SDK is published two ways.</p>
-<p>Through vcpkg, using the Febris registry. Add the registry to your <code>vcpkg-configuration.json</code>, pointing at <code>https://github.com/TRget88/Febris_VcpkgRegistry</code>, then:</p>
+<p>Through vcpkg, using the Febris registry. Add the registry to your <code>vcpkg-configuration.json</code>, pointing at <code>https://github.com/Febris-XR/Febris_VcpkgRegistry</code>, then:</p>
 <pre class="code" data-lang="bash"><code>vcpkg install febris-simulation-sdk</code></pre>
-<p>Or take the release bundle directly from the <a href="https://github.com/TRget88/Febris_SDK/releases">Febris_SDK releases</a>. It contains the DLL, the import library and the public header. Every release also ships a <code>SHA256SUMS</code> file, and verifying the download against it is worth the few seconds.</p>
+<p>Or take the release bundle directly from the <a href="https://github.com/Febris-XR/Febris_SDK/releases">Febris_SDK releases</a>. It contains the DLL, the import library and the public header. Every release also ships a <code>SHA256SUMS</code> file, and verifying the download against it is worth the few seconds.</p>
 <h3 id="the-interface-is-a-flat-c-abi">The interface is a flat C ABI</h3>
 <p><code>FebrisSimApi.h</code> is the <strong>only</strong> supported binary interface. The C++ classes behind it are deliberately not exported, so there is no MSVC name mangling to lock you to one compiler or CRT, and the surface is callable by P/Invoke from a C# host if you need that.</p>
 <p>If you would rather compile the SDK sources directly into your own target, define <code>FEBRISSIM_STATIC</code> before including the header and it stops importing.</p>
@@ -252,10 +252,10 @@ enum FebrisSimLogLevel { Debug = 0, Info = 1, Warn = 2, Error = 3 };</code></pre
 <footer><div class="wrap">
   <p>Febris is open source. The delivery node is AGPL-3.0, the SDKs are Apache-2.0, this site is MIT.</p>
   <p>
-    <a href="https://github.com/TRget88/Febris_Node">Node</a> &middot;
-    <a href="https://github.com/TRget88/Febris_SDK">SDK</a> &middot;
-    <a href="https://github.com/TRget88/Febris_ClientDist">Distribution feed</a> &middot;
-    <a href="https://github.com/TRget88/Febris_Landing">This site</a>
+    <a href="https://github.com/Febris-XR/Febris_Node">Node</a> &middot;
+    <a href="https://github.com/Febris-XR/Febris_SDK">SDK</a> &middot;
+    <a href="https://github.com/Febris-XR/Febris_ClientDist">Distribution feed</a> &middot;
+    <a href="https://github.com/Febris-XR/Febris_Landing">This site</a>
   </p>
 </div></footer>
 </body>
