@@ -326,7 +326,15 @@ def card_for(kind, entry):
     pill = '<span class="pill pill-live">Version %s</span>' % esc(version)
 
     if kind["acquire"] == "via-server":
-        action = via_server
+        # The Companion is normally delivered BY the Mobile Server, and that stays the primary
+        # route because it is what scales past a handful of headsets. But a published APK is
+        # still worth offering directly: it is how you sideload the first headset, or recover
+        # one that cannot reach a server. Show both rather than hiding the download.
+        bits = ['<a class="btn btn-primary" href="%s">Download the APK</a>' % esc(art["url"])]
+        if kind.get("source"):
+            slabel, shref = kind["source"]
+            bits.append('<a class="btn btn-ghost" href="%s">%s</a>' % (esc(shref), esc(slabel)))
+        action = via_server + '<div class="cta">%s</div>' % "".join(bits)
     else:
         bits = ['<a class="btn btn-primary" href="%s">Download</a>' % esc(art["url"])]
         if kind.get("home"):
@@ -469,10 +477,20 @@ def build_update(post):
 
 
 def build_index(manifest, docs):
+    # A kind can carry more than one row, because `consumers` distinguishes who a package is
+    # for. The Companion ships twice: an .apk a person sideloads, and a .zip a NODE ingests,
+    # since PackageIngestLogic accepts only .zip. This page is read by people, so prefer the
+    # human row explicitly rather than relying on which happens to come first in the feed.
     by_kind = {}
     for p in manifest.get("packages", []):
-        if not p.get("obsolete"):
-            by_kind.setdefault(p.get("kindId"), p)
+        if p.get("obsolete"):
+            continue
+        kid = p.get("kindId")
+        cons = [c.lower() for c in (p.get("consumers") or [])]
+        human = (not cons) or ("human" in cons)
+        if kid not in by_kind or (human and not by_kind[kid][1]):
+            by_kind[kid] = (p, human)
+    by_kind = {k: v[0] for k, v in by_kind.items() if v[1]}
 
     cards = "".join(card_for(k, by_kind.get(k["id"])) for k in KINDS)
     live = sum(1 for k in KINDS if by_kind.get(k["id"]))
