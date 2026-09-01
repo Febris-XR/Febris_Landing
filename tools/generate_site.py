@@ -40,6 +40,7 @@ KINDS = [
                  "learner's machine and reports back to your node.",
         "acquire": "download",
         "platform": "Windows 10 or later, x64",
+        "source": ("View the source", "https://github.com/Febris-XR/Febris_PC"),
     },
     {
         "id": 200, "slug": "mobile-server", "key": "AndroidMobileServer", "name": "Mobile Server",
@@ -47,6 +48,7 @@ KINDS = [
                  "module archives, and relays learning records back to your node.",
         "acquire": "download",
         "platform": "Android 10 or later, sideloaded",
+        "source": ("View the source", "https://github.com/Febris-XR/Febris_MobileSuite"),
     },
     {
         "id": 300, "slug": "mobile-companion", "key": "AndroidMobileCompanion", "name": "Mobile Companion",
@@ -54,6 +56,7 @@ KINDS = [
                  "to the Mobile Server over a direct peer link.",
         "acquire": "via-server",
         "platform": "Android 8 or later, installed onto the headset",
+        "source": ("View the source", "https://github.com/Febris-XR/Febris_MobileSuite"),
     },
     {
         "id": 400, "slug": "sdk-csharp", "key": "CSharp", "name": "Simulation SDK for C#",
@@ -63,6 +66,7 @@ KINDS = [
         "platform": ".NET Standard 2.0",
         "install": [("Add it to a project", "dotnet add package Febris.Simulation.XApiSdk --version {version}")],
         "home": ("View on nuget.org", "https://www.nuget.org/packages/Febris.Simulation.XApiSdk"),
+        "source": ("View the source", "https://github.com/Febris-XR/Febris_SDK"),
     },
     {
         "id": 500, "slug": "sdk-cpp", "key": "CPP", "name": "Simulation SDK for C++",
@@ -76,6 +80,7 @@ KINDS = [
             ("Then install", "vcpkg install febris-simulation-sdk"),
         ],
         "home": ("Browse the releases", "https://github.com/Febris-XR/Febris_SDK/releases"),
+        "source": ("View the source", "https://github.com/Febris-XR/Febris_SDK"),
     },
 ]
 
@@ -294,15 +299,25 @@ def card_for(kind, entry):
                   'headset by your Mobile Server over a direct link, so it installs itself once '
                   'the Server is paired and pointed at your node.</p>')
 
+    # The source link renders whether or not a signed BINARY exists. Every component here is
+    # public already, so a card that says "not yet published" and then offers no route at all
+    # reads as though the whole thing is missing, when only the signed artifact is.
+    src = ""
+    if kind.get("source"):
+        slabel, shref = kind["source"]
+        src = '<div class="cta"><a class="btn btn-ghost" href="%s">%s</a></div>' % (
+            esc(shref), esc(slabel))
+
     if entry is None:
-        pill = '<span class="pill pill-soon">Not yet published</span>'
+        pill = '<span class="pill pill-soon">Source only</span>'
         if kind["acquire"] == "via-server":
             action = via_server
         else:
-            action = ('<p class="note">This client is built but not yet published. It is gated on '
-                      'release signing, and will appear here automatically once the feed carries '
-                      'it.</p>')
-        return '<div class="card" id="%s">%s %s %s %s</div>' % (kind["slug"], pill, head, desc, action)
+            action = ('<p class="note">The source is public and builds today. What is missing is a '
+                      'signed binary, which is what release signing gates, and one appears here '
+                      'automatically once the feed carries it.</p>')
+        return '<div class="card" id="%s">%s %s %s %s %s</div>' % (
+            kind["slug"], pill, head, desc, action, src)
 
     art = entry["artifact"]
     version = entry.get("version", "")
@@ -315,6 +330,9 @@ def card_for(kind, entry):
         if kind.get("home"):
             label, href = kind["home"]
             bits.append('<a class="btn btn-ghost" href="%s">%s</a>' % (esc(href), esc(label)))
+        if kind.get("source"):
+            slabel, shref = kind["source"]
+            bits.append('<a class="btn btn-ghost" href="%s">%s</a>' % (esc(shref), esc(slabel)))
         action = '<div class="cta">%s</div>' % "".join(bits)
         for label, cmd in kind.get("install", []):
             action += "<p class=\"plat\" style=\"margin:0.9rem 0 0\">%s</p><pre>%s</pre>" % (
