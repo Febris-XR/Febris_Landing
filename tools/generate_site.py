@@ -41,6 +41,7 @@ KINDS = [
         "acquire": "download",
         "platform": "Windows 10 or later, x64",
         "source": ("View the source", "https://github.com/Febris-XR/Febris_PC"),
+        "direct": ("Download the installer (.msi)", "https://github.com/Febris-XR/Febris_PC/releases/download/v0.2.0/FebrisPCSuite-0.2.0-win-x64.msi"),
     },
     {
         "id": 200, "slug": "mobile-server", "key": "AndroidMobileServer", "name": "Mobile Server",
@@ -49,6 +50,7 @@ KINDS = [
         "acquire": "download",
         "platform": "Android 10 or later, sideloaded",
         "source": ("View the source", "https://github.com/Febris-XR/Febris_MobileSuite"),
+        "direct": ("Download the APK", "https://github.com/Febris-XR/Febris_MobileSuite/releases/download/v0.2.0/febris-mobile-server-v0.2.0.apk"),
     },
     {
         "id": 300, "slug": "mobile-companion", "key": "AndroidMobileCompanion", "name": "Mobile Companion",
@@ -57,6 +59,7 @@ KINDS = [
         "acquire": "via-server",
         "platform": "Android 8 or later, installed onto the headset",
         "source": ("View the source", "https://github.com/Febris-XR/Febris_MobileSuite"),
+        "direct": ("Download the APK", "https://github.com/Febris-XR/Febris_MobileSuite/releases/download/v0.2.0/febris-mobile-companion-v0.2.0.apk"),
     },
     {
         "id": 400, "slug": "sdk-csharp", "key": "CSharp", "name": "Simulation SDK for C#",
@@ -330,13 +333,18 @@ def card_for(kind, entry):
         # route because it is what scales past a handful of headsets. But a published APK is
         # still worth offering directly: it is how you sideload the first headset, or recover
         # one that cannot reach a server. Show both rather than hiding the download.
-        bits = ['<a class="btn btn-primary" href="%s">Download the APK</a>' % esc(art["url"])]
+        primary = kind.get("direct") or ("Download", art["url"])
+        bits = ['<a class="btn btn-primary" href="%s">%s</a>' % (esc(primary[1]), esc(primary[0]))]
         if kind.get("source"):
             slabel, shref = kind["source"]
             bits.append('<a class="btn btn-ghost" href="%s">%s</a>' % (esc(shref), esc(slabel)))
         action = via_server + '<div class="cta">%s</div>' % "".join(bits)
     else:
-        bits = ['<a class="btn btn-primary" href="%s">Download</a>' % esc(art["url"])]
+        # The feed artifact is a .zip because that is what a node ingests. A person wants the
+        # installer or the APK, so offer the direct asset when the kind names one and fall back
+        # to the feed artifact otherwise.
+        primary = kind.get("direct") or ("Download", art["url"])
+        bits = ['<a class="btn btn-primary" href="%s">%s</a>' % (esc(primary[1]), esc(primary[0]))]
         if kind.get("home"):
             label, href = kind["home"]
             bits.append('<a class="btn btn-ghost" href="%s">%s</a>' % (esc(href), esc(label)))
