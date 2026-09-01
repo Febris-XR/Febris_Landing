@@ -1,4 +1,4 @@
-﻿---
+---
 title: C++ SDK
 anchor: docs-sdk-cpp
 summary: Consuming the native SDK through its flat C ABI: installing it, the calling conventions, and a minimal session.

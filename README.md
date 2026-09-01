@@ -1,4 +1,4 @@
-﻿# Febris_Landing
+# Febris_Landing
 
 The public front door for [Febris](https://github.com/Febris-XR/Febris_Node), an open source
 training and simulation platform. This repository builds the site that tells people what Febris

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """Generate the Febris landing site from the client-dist feed manifest.
 
 The feed is the single source of truth. Every download card, version string, size and
