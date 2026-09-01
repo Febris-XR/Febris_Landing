@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C# and Unity SDK, Febris documentation</title>
+<meta name="description" content="Febris is an open source training and simulation platform. Self-host a delivery node and connect PC, mobile and XR clients.">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<style>
+:root {
+  --ink: #14181c; --ink-soft: #4a545e; --ink-faint: #79848f;
+  --ground: #fbfaf7; --panel: #ffffff; --line: #e3e0d9;
+  --accent: #0f6d67; --accent-soft: #e6f1f0;
+  --warn-bg: #fdf6e6; --warn-line: #e8d5a3; --warn-ink: #6b5310;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e8eaec; --ink-soft: #a3adb6; --ink-faint: #78838d;
+    --ground: #14171a; --panel: #1b1f23; --line: #2c3238;
+    --accent: #4fbfb4; --accent-soft: #16302e;
+    --warn-bg: #2a2413; --warn-line: #5c4c1e; --warn-ink: #e3c877;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e8eaec; --ink-soft: #a3adb6; --ink-faint: #78838d;
+  --ground: #14171a; --panel: #1b1f23; --line: #2c3238;
+  --accent: #4fbfb4; --accent-soft: #16302e;
+  --warn-bg: #2a2413; --warn-line: #5c4c1e; --warn-ink: #e3c877;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font-family: var(--sans); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 0 1.5rem; }
+header.top { border-bottom: 1px solid var(--line); padding: 1.1rem 0; }
+header.top .wrap { display: flex; align-items: baseline; gap: 1.25rem; flex-wrap: wrap; }
+.brand { font-weight: 650; letter-spacing: -0.01em; font-size: 1.05rem; color: var(--ink); text-decoration: none; }
+.brand span { color: var(--accent); }
+nav.top { margin-left: auto; display: flex; gap: 1.25rem; }
+nav.top a { color: var(--ink-soft); text-decoration: none; font-size: 0.92rem; }
+nav.top a:hover { color: var(--accent); }
+.hero { padding: 4rem 0 3rem; border-bottom: 1px solid var(--line); }
+.hero h1 { font-size: clamp(2rem, 5vw, 2.9rem); line-height: 1.15; margin: 0 0 1rem;
+           letter-spacing: -0.025em; text-wrap: balance; }
+.hero p.lede { font-size: 1.15rem; color: var(--ink-soft); max-width: 44rem; margin: 0 0 1.75rem; }
+.cta { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.btn { display: inline-block; padding: 0.6rem 1.15rem; border-radius: 6px; text-decoration: none;
+       font-size: 0.95rem; font-weight: 550; border: 1px solid transparent; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { border-color: var(--line); color: var(--ink); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+section { padding: 3.25rem 0; border-bottom: 1px solid var(--line); }
+section h2 { font-size: 1.5rem; letter-spacing: -0.015em; margin: 0 0 0.5rem; }
+section p.sub { color: var(--ink-soft); margin: 0 0 2rem; max-width: 46rem; }
+.grid { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); }
+.card { scroll-margin-top: 1.5rem; background: var(--panel); border: 1px solid var(--line); border-radius: 9px;
+        padding: 1.35rem; display: flex; flex-direction: column; }
+.card h3 { margin: 0 0 0.15rem; font-size: 1.08rem; letter-spacing: -0.01em; }
+.card .plat { font-size: 0.8rem; color: var(--ink-faint); margin: 0 0 0.7rem; }
+.card p.desc { margin: 0 0 1.1rem; color: var(--ink-soft); font-size: 0.93rem; flex: 1; }
+.pill { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em;
+        text-transform: uppercase; padding: 0.16rem 0.5rem; border-radius: 999px; }
+.pill-live { background: var(--accent-soft); color: var(--accent); }
+.pill-soon { background: var(--line); color: var(--ink-faint); }
+.meta { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-faint);
+        border-top: 1px solid var(--line); padding-top: 0.85rem; margin-top: 0.4rem; }
+.meta div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.12rem 0; }
+.meta .hash { word-break: break-all; text-align: right; }
+.note { background: var(--warn-bg); border: 1px solid var(--warn-line); color: var(--warn-ink);
+        border-radius: 7px; padding: 0.8rem 1rem; font-size: 0.88rem; }
+pre { background: var(--panel); border: 1px solid var(--line); border-radius: 7px;
+      padding: 0.85rem 1rem; overflow-x: auto; font-family: var(--mono); font-size: 0.85rem;
+      margin: 0.5rem 0 0; }
+code { font-family: var(--mono); font-size: 0.88em; }
+footer { padding: 2.5rem 0 3.5rem; color: var(--ink-faint); font-size: 0.88rem; }
+footer a { color: var(--ink-soft); }
+a { color: var(--accent); }
+table.kinds { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+table.kinds th, table.kinds td { text-align: left; padding: 0.5rem 0.75rem 0.5rem 0;
+                                  border-bottom: 1px solid var(--line); }
+table.kinds th { color: var(--ink-faint); font-weight: 600; font-size: 0.78rem;
+                 text-transform: uppercase; letter-spacing: 0.04em; }
+.flow { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+        counter-reset: step; }
+.flow > div { position: relative; padding-top: 2.4rem; }
+.flow > div::before {
+  counter-increment: step; content: counter(step);
+  position: absolute; top: 0; left: 0;
+  width: 1.7rem; height: 1.7rem; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent);
+  font-family: var(--mono); font-size: 0.85rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.flow h3 { margin: 0 0 0.35rem; font-size: 1rem; }
+.flow p { margin: 0; color: var(--ink-soft); font-size: 0.92rem; }
+.features { display: grid; gap: 0 2.5rem; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); }
+.features dt { font-weight: 600; margin-top: 1.4rem; font-size: 0.97rem; }
+.features dt:first-of-type { margin-top: 0; }
+.features dd { margin: 0.2rem 0 0; color: var(--ink-soft); font-size: 0.92rem; }
+.status { list-style: none; padding: 0; margin: 0; }
+.status li { padding: 0.55rem 0 0.55rem 1.5rem; border-bottom: 1px solid var(--line);
+             position: relative; color: var(--ink-soft); font-size: 0.93rem; }
+.status li::before { content: ""; position: absolute; left: 0; top: 1.05rem;
+                     width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--accent); }
+.status li:last-child { border-bottom: 0; }
+.status strong { color: var(--ink); font-weight: 600; }
+/* Brand mark. The logo is the original white one, which is white on transparency, so it
+   needs a dark plate behind it or it disappears against the light theme's ground. The plate is
+   a fixed colour on purpose rather than a theme token: it must stay dark in BOTH themes. */
+.brand { display: inline-flex; align-items: center; text-decoration: none; }
+.plate { display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 7px; padding: 0.3rem 0.55rem; }
+.plate-dark { background: #0e1418; }
+.plate-light { background: #ffffff; border: 1px solid var(--line); }
+.brand img { height: 40px; width: auto; display: block; }
+
+.flow-2 { grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); margin-bottom: 2rem; }
+p.tiny { font-size: 0.86rem; margin: 0.5rem 0 0; }
+
+/* Logo page. Each variant is shown on the background it is designed for, so nobody picks the
+   white one for a white page. */
+.logogrid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
+.logotile { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); }
+.logotile .plate { width: 100%; border-radius: 0; padding: 2rem; }
+.logotile img { max-width: 100%; height: auto; display: block; }
+.logotile .meta { padding: 0.9rem 1rem; border-top: 1px solid var(--line); }
+.logotile .meta h3 { margin: 0 0 0.35rem; font-size: 0.98rem; }
+.logotile .meta p { margin: 0 0 0.5rem; font-size: 0.86rem; color: var(--ink-soft); }
+.logotile .meta code { font-size: 0.78rem; word-break: break-all; }
+
+.postmeta { color: var(--ink-faint); font-size: 0.86rem; margin: 0 0 0.3rem; }
+
+.doclist { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+.doccard { display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+           padding: 1.1rem; text-decoration: none; color: inherit; }
+.doccard:hover { border-color: var(--accent); }
+.doccard h3 { margin: 0 0 0.3rem; font-size: 1rem; color: var(--ink); }
+.doccard p { margin: 0; font-size: 0.88rem; color: var(--ink-soft); }
+.doccard .stub { color: var(--ink-faint); font-style: italic; }
+article.doc { padding: 2.5rem 0 3rem; }
+article.doc h2 { font-size: 1.7rem; margin: 0 0 1.2rem; letter-spacing: -0.02em; }
+article.doc h3 { font-size: 1.15rem; margin: 2rem 0 0.6rem; }
+article.doc h4 { font-size: 1rem; margin: 1.5rem 0 0.5rem; }
+article.doc p { margin: 0 0 1rem; }
+article.doc li { margin: 0.25rem 0; }
+article.doc blockquote { margin: 1rem 0; padding: 0.7rem 1rem; border-left: 3px solid var(--accent);
+                         background: var(--accent-soft); color: var(--ink-soft); font-size: 0.93rem; }
+pre.code { background: var(--panel); border: 1px solid var(--line); border-radius: 7px;
+           padding: 0.9rem 1.1rem; overflow-x: auto; font-family: var(--mono);
+           font-size: 0.82rem; line-height: 1.5; margin: 0 0 1.1rem; }
+.backlink { display: inline-block; margin-bottom: 1.5rem; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="../index.html">
+    <span class="plate plate-dark"><img src="../media/images/Logos/FebrisLogo_White.png" alt="Febris"></span>
+  </a>
+  <nav class="top">
+    <a href="../index.html#downloads">Downloads</a>
+    <a href="../index.html#docs">Docs</a>
+    <a href="../updates.html">Updates</a>
+    <a href="../about.html">About</a>
+    <a href="../index.html#run">Self-host</a>
+    <a href="https://github.com/TRget88/Febris_Node">Source</a>
+  </nav>
+</div></header>
+
+<article class="doc"><div class="wrap">
+  <a class="backlink" href="../index.html#docs">Back to all guides</a>
+  <blockquote>The code examples carried three defects in the original documentation and have been repaired here, each marked with a corrected comment. The fixes are a field name, an Android intent variable name, and a stray semicolon that turned an initialisation guard into a no-op. Verify against your own build before relying on them.</blockquote>
+  <h2 id="c-unity-read-me-documentation">C# Unity Read Me Documentation</h2>
+<h3 id="background">Background</h3>
+<p>This is document is used to help developers integrate Febris functionality into XR simulations built in unity or with C#. Some of the sections posted pertain directly to Unity.</p>
+<p><strong>Please keep in mind this library is a continuous work in progress and may change as well as these documents.</strong></p>
+<h3 id="external-requirements">External Requirements</h3>
+<p>A few things are not provided that are needed to use this library properly. These items are:</p>
+<ol><li>Stopwatch instance (or timespan but the stopwatch is the most simple)</li><li>String array</li><li>float for score (Min, Max, Raw, and Scaled)</li><li>Newtonsoft.Json dll that is at least 12.0.0.0</li></ol>
+<p>The stopwatch instance is used for keeping track of how long a user is in a simulation. This will be used multiple times.</p>
+<p>The string array will be used to collect Command line arguments.</p>
+<p>Example:</p>
+<pre class="code" data-lang="csharp"><code>public class testScript : MonoBehaviour
+{
+    Stopwatch __stopwatch = new Stopwatch();
+    float __rawScore = 0f;
+    float __minScore = 0f;
+    float __maxScore = 100f;
+    float __scaledScore = 0f;
+
+    void Start()
+    {
+        __stopwatch.Start();   // corrected: the field is __stopwatch
+        string[] arguments = Environment.GetCommandLineArgs();
+    }
+}</code></pre>
+<h3 id="adding-the-febris-dll">Adding the Febris dll</h3>
+<p>Add the febris dll (dynamic link library) to a folder in your project. This dll will be provided by Febris. It does not need to be stored in a specific location but it will need to be present. The namespace path can be seen below.</p>
+<pre class="code" data-lang="csharp"><code>Febris.CsharpSimulationLibraryNetStandard.Statement</code></pre>
+<h3 id="initialization">Initialization</h3>
+<p>Initialization needs to happen when the simulation starts. This will require the arguments to be passed into the newly initialized Febris files.</p>
+<p>Example:</p>
+<blockquote>Note: this snippet was reconstructed from damaged source. The brace nesting near the end of <code>Start()</code> is unbalanced in the original (an extra closing brace followed by a second <code>catch</code> block, and no closing brace for the class). The original text is kept as written rather than repaired.</blockquote>
+<pre class="code" data-lang="csharp"><code>public class testScript : MonoBehaviour
+{
+    Stopwatch __stopwatch = new Stopwatch();
+    float __rawScore = 0f;
+    float __minScore = 0f;
+    float __maxScore = 100f;
+    float __scaledScore = 0f;
+    float __period = 10f;
+    float __nextUpdate = 10f;
+
+    void Start()
+    {
+        __stopwatch.Start();
+
+        bool isInitialized = false;
+
+        string[] argumentArray = default;
+        string[,] statementOutputArray = default;
+
+        switch (Application.platform)
+        {
+            case RuntimePlatform.Android:
+            {
+                AndroidJavaClass UnityPlayer = new AndroidJavaClass(&quot;com.unity3d.player.UnityPlayer&quot;);
+                AndroidJavaObject currentActivity = UnityPlayer.GetStatic&lt;AndroidJavaObject&gt;(&quot;currentActivity&quot;);
+                AndroidJavaObject inputIntent = currentActivity.Call&lt;AndroidJavaObject&gt;(AndroidIntentConst.GetIntentTag);
+                bool hasExtra = inputIntent.Call&lt;bool&gt;(AndroidIntentConst.HasExtrasTag, AndroidIntentConst.ArgumentExtraTag);
+                if (!hasExtra) {
+                    UnityEngine.Debug.Log(&quot;*********************Intent has no extras******************************&quot;);
+                }
+
+                AndroidJavaObject extras = inputIntent.Call&lt;AndroidJavaObject&gt;(&quot;getExtras&quot;);
+                try {
+                    string arguments = extras.Call&lt;string&gt;(AndroidIntentConst.GetStringTag, AndroidIntentConst.ArgumentExtraTag);
+                    argumentArray = new string[] { arguments };
+                    UnityEngine.Debug.Log(argumentArray);
+                }
+                catch {
+                    UnityEngine.Debug.Log(&quot;*********************FAILED TO GET ARGUMENTS******************************&quot;);
+                }
+                break;
+            }
+
+            case RuntimePlatform.WindowsPlayer:
+            {
+                argumentArray = Environment.GetCommandLineArgs();
+                break;
+            }
+
+            default:
+            {
+                Application.Quit();
+                break;
+            }
+        }
+
+        try {
+            switch (Application.platform)
+            {
+                case RuntimePlatform.WindowsPlayer:
+                {
+                    (isInitialized, statementOutputArray) = Initializer.Initialize(argumentArray, ExpectedOperatingSystem.WindowsPC).Result;
+                    break;
+                }
+
+                case RuntimePlatform.Android:
+                {
+                    (isInitialized, statementOutputArray) = Initializer.Initialize(argumentArray, ExpectedOperatingSystem.Android).Result;
+                    Android_SendBroadcast(statementOutputArray, AndroidIntentConst.StatementCreation);
+                    break;
+                }
+
+                case RuntimePlatform.IPhonePlayer:
+                {
+                    (isInitialized, statementOutputArray) = Initializer.Initialize(argumentArray, ExpectedOperatingSystem.iOSvariant).Result;
+                    break;
+                }
+            }
+        }
+        catch (Exception ex) {
+            Console.WriteLine(&quot;Error initalizing in Unity: &quot; + ex.Message);
+            throw;
+        }
+
+        string startpath = Application.persistentDataPath;
+
+        UnityEngine.Debug.Log(&quot;isInitalized:&quot; + isInitialized.ToString());
+
+        if (!isInitialized)   // corrected: the original had a trailing semicolon here, which
+                              // made the guard a no-op and quit the app on every successful start
+        {
+            UnityEngine.Debug.LogError(&quot;has not been initalized&quot;);
+            #if (!UNITY_EDITOR)
+            Application.Quit();
+            #endif
+        }
+
+        new WaitForSeconds(1f);
+
+        try {
+            StatementHandler.UpdateStatement(XAPIProperties.Result, ResultOptions.ScoreMin, __minScore);
+            StatementHandler.UpdateStatement(XAPIProperties.Result, ResultOptions.ScoreMax, __maxScore);
+
+            switch (Application.platform)
+            {
+                case RuntimePlatform.WindowsPlayer:
+                {
+                    ///Nothing is need here for updates because windowsPlayer uses the file system.
+                    break;
+                }
+
+                case RuntimePlatform.Android:
+                {
+                    (isInitialized, statementOutputArray) = StatementHandler.GetSendableUpdate().Result;
+                    UnityEngine.Debug.Log(&quot;statement Output Array:&quot; + statementOutputArray.ToString());
+                    Android_SendBroadcast(statementOutputArray, AndroidIntentConst.StatementUpdate);
+                    break;
+                }
+
+                case RuntimePlatform.IPhonePlayer:
+                {
+                    (isInitialized, statementOutputArray) = StatementHandler.GetSendableUpdate().Result;
+                    break;
+                }
+            }
+        }
+        catch (Exception ex) {
+            Console.WriteLine(&quot;Error updating statement in Unity: &quot; + ex.Message);
+            throw;
+        }
+        }
+        catch (Exception ex) {
+            UnityEngine.Debug.Log(ex.Message);
+            UnityEngine.Debug.Log(ex.Data);
+            #if (!UNITY_EDITOR)
+            Application.Quit();
+            #endif
+        }
+    }</code></pre>
+<h3 id="keeping-time">Keeping Time</h3>
+<p>Time keeping needs to be handled at least once every 10 seconds. This can be handled two different ways. Both functions require the use of the previously discussed stopwatch variable. The easiest way can be handled in one line seen below.</p>
+<pre class="code" data-lang="csharp"><code>Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.DurationUpdate(__stopwatch.Elapsed);</code></pre>
+<p>The second way to handle timekeeping can be completed with a more generic function seen below.</p>
+<pre class="code" data-lang="csharp"><code>Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.UpdateStatement(XAPIProperties.Result, ResultOptions.Duration, __stopwatch.Elapsed);</code></pre>
+<p>One simple way of accomplishing this task is by using an update like shown below.</p>
+<pre class="code" data-lang="csharp"><code>private void Update(){
+    if (Time.time &gt; __nextUpdate){
+        __nextUpdate += __period;
+        Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.DurationUpdate(__stopwatch.Elapsed);
+    }
+}</code></pre>
+<h3 id="stage-restart-counting">Stage Restart Counting</h3>
+<p>Whenever a stage is restarted a count is kept. This should be tied to the stage restart button in the UI. This can be done using the snippet below.</p>
+<pre class="code" data-lang="csharp"><code>Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.StageRestart();</code></pre>
+<h3 id="adding-notes">Adding notes</h3>
+<p>Adding notes to a simulation adds extra information for later review by the user. <strong>Notes are immutable.</strong> This is accomplished two different ways. The easiest way can be seen in the below snippet.</p>
+<pre class="code" data-lang="csharp"><code>Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.AddResultNote(&quot;This is a very useful note&quot;);</code></pre>
+<p>Note adding can also be accomplished by the snippet below.</p>
+<pre class="code" data-lang="csharp"><code>Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.UpdateStatement(XAPIProperties.Result, ResultOptions.Extensions, ResultExtensionOptions.Notes, &quot;This is a very useful note&quot;);</code></pre>
+<h3 id="scoring-the-simulation">Scoring the Simulation</h3>
+<p>Scoring a simulation has multiple parts. The maximum score, the minimum score, the scaled score, and the raw score. The maximum score is the highest possible score on the simulation and the minimum score is likewise the lowest possible score on the simulation. The raw score on the simulation is the procession of the user and needs to be kept current with progress. <strong>Do not set a scaled score, it is currently automatically set.</strong> The snippet below shows how these can be added to the result of the simulation.</p>
+<pre class="code" data-lang="csharp"><code>//These can be set at the start of the simulation and may already be set when the simulation starts, but most likely not.
+Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.UpdateStatement(XAPIProperties.Result, ResultOptions.ScoreMax, 100f);
+Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.UpdateStatement(XAPIProperties.Result, ResultOptions.ScoreMin, 0f);
+
+//This is the user&#x27;s score that needs to be kept current. 85f is just an example.
+Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.UpdateStatement(XAPIProperties.Result, ResultOptions.ScoreRaw, 85f);</code></pre>
+<h3 id="simulation-pass">Simulation pass</h3>
+<p>If the simulation score is higher than passing this needs to be noted using the below snippet. (ie. if the passing score is 70 and the person has already scored higher than true needs to be passed as the input.)</p>
+<pre class="code" data-lang="csharp"><code>Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.SimulationPassed(true);
+
+//or
+
+Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.UpdateStatement(XAPIProperties.Result, ResultOptions.Success, true);</code></pre>
+<p>It would be more simple if this were a static variable in the simulation and used as a variable in the bool position. This can also be handled at a different point seen in the ending simulation section.</p>
+<h3 id="completing-the-simulation">Completing the Simulation</h3>
+<p>If the user completes the simulation it should be noted using the snippet below.</p>
+<pre class="code" data-lang="csharp"><code>Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.SimulationComplete();
+
+//or
+
+Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.UpdateStatement(XAPIProperties.Result, ResultOptions.Completion, true);</code></pre>
+<p>This can also be handled at a different point seen in the ending simulation section.</p>
+<h3 id="ending-the-simulation">Ending the Simulation</h3>
+<p>Ending a simulation can be handled a few different ways depending on what has been accomplished. If everything has already been updated then the below snippet can be used to end the simulation.</p>
+<pre class="code" data-lang="csharp"><code>Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.EndSimulation();</code></pre>
+<p>The below snippet will fill in the needed items that could have been set in completion and success as well as the raw score and duration of the simulation. This is the easiest, most complete way to end a simulation.</p>
+<blockquote>Note: the source shows this line with parameter types included, so it reads as a method signature rather than a call site. It is reproduced as written.</blockquote>
+<pre class="code" data-lang="csharp"><code>Febris.CsharpSimulationLibraryNetStandard.Statement.StatementHandler.EndSimulation(bool success, bool complete, float rawScore, TimeSpan duration);</code></pre>
+</div></article>
+
+<footer><div class="wrap">
+  <p>Febris is open source. The delivery node is AGPL-3.0, the SDKs are Apache-2.0, this site is MIT.</p>
+  <p>
+    <a href="https://github.com/TRget88/Febris_Node">Node</a> &middot;
+    <a href="https://github.com/TRget88/Febris_SDK">SDK</a> &middot;
+    <a href="https://github.com/TRget88/Febris_ClientDist">Distribution feed</a> &middot;
+    <a href="https://github.com/TRget88/Febris_Landing">This site</a>
+  </p>
+</div></footer>
+</body>
+</html>

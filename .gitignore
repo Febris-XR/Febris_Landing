@@ -1,0 +1,4 @@
+
+# Python bytecode from tools/generate_site.py and tools/render_docs.py
+__pycache__/
+*.pyc

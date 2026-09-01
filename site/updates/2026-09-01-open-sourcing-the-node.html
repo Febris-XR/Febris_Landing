@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The end-user deployment is open source, Febris updates</title>
+<meta name="description" content="Febris is an open source training and simulation platform. Self-host a delivery node and connect PC, mobile and XR clients.">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<style>
+:root {
+  --ink: #14181c; --ink-soft: #4a545e; --ink-faint: #79848f;
+  --ground: #fbfaf7; --panel: #ffffff; --line: #e3e0d9;
+  --accent: #0f6d67; --accent-soft: #e6f1f0;
+  --warn-bg: #fdf6e6; --warn-line: #e8d5a3; --warn-ink: #6b5310;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e8eaec; --ink-soft: #a3adb6; --ink-faint: #78838d;
+    --ground: #14171a; --panel: #1b1f23; --line: #2c3238;
+    --accent: #4fbfb4; --accent-soft: #16302e;
+    --warn-bg: #2a2413; --warn-line: #5c4c1e; --warn-ink: #e3c877;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e8eaec; --ink-soft: #a3adb6; --ink-faint: #78838d;
+  --ground: #14171a; --panel: #1b1f23; --line: #2c3238;
+  --accent: #4fbfb4; --accent-soft: #16302e;
+  --warn-bg: #2a2413; --warn-line: #5c4c1e; --warn-ink: #e3c877;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font-family: var(--sans); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 0 1.5rem; }
+header.top { border-bottom: 1px solid var(--line); padding: 1.1rem 0; }
+header.top .wrap { display: flex; align-items: baseline; gap: 1.25rem; flex-wrap: wrap; }
+.brand { font-weight: 650; letter-spacing: -0.01em; font-size: 1.05rem; color: var(--ink); text-decoration: none; }
+.brand span { color: var(--accent); }
+nav.top { margin-left: auto; display: flex; gap: 1.25rem; }
+nav.top a { color: var(--ink-soft); text-decoration: none; font-size: 0.92rem; }
+nav.top a:hover { color: var(--accent); }
+.hero { padding: 4rem 0 3rem; border-bottom: 1px solid var(--line); }
+.hero h1 { font-size: clamp(2rem, 5vw, 2.9rem); line-height: 1.15; margin: 0 0 1rem;
+           letter-spacing: -0.025em; text-wrap: balance; }
+.hero p.lede { font-size: 1.15rem; color: var(--ink-soft); max-width: 44rem; margin: 0 0 1.75rem; }
+.cta { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.btn { display: inline-block; padding: 0.6rem 1.15rem; border-radius: 6px; text-decoration: none;
+       font-size: 0.95rem; font-weight: 550; border: 1px solid transparent; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { border-color: var(--line); color: var(--ink); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+section { padding: 3.25rem 0; border-bottom: 1px solid var(--line); }
+section h2 { font-size: 1.5rem; letter-spacing: -0.015em; margin: 0 0 0.5rem; }
+section p.sub { color: var(--ink-soft); margin: 0 0 2rem; max-width: 46rem; }
+.grid { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); }
+.card { scroll-margin-top: 1.5rem; background: var(--panel); border: 1px solid var(--line); border-radius: 9px;
+        padding: 1.35rem; display: flex; flex-direction: column; }
+.card h3 { margin: 0 0 0.15rem; font-size: 1.08rem; letter-spacing: -0.01em; }
+.card .plat { font-size: 0.8rem; color: var(--ink-faint); margin: 0 0 0.7rem; }
+.card p.desc { margin: 0 0 1.1rem; color: var(--ink-soft); font-size: 0.93rem; flex: 1; }
+.pill { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em;
+        text-transform: uppercase; padding: 0.16rem 0.5rem; border-radius: 999px; }
+.pill-live { background: var(--accent-soft); color: var(--accent); }
+.pill-soon { background: var(--line); color: var(--ink-faint); }
+.meta { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-faint);
+        border-top: 1px solid var(--line); padding-top: 0.85rem; margin-top: 0.4rem; }
+.meta div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.12rem 0; }
+.meta .hash { word-break: break-all; text-align: right; }
+.note { background: var(--warn-bg); border: 1px solid var(--warn-line); color: var(--warn-ink);
+        border-radius: 7px; padding: 0.8rem 1rem; font-size: 0.88rem; }
+pre { background: var(--panel); border: 1px solid var(--line); border-radius: 7px;
+      padding: 0.85rem 1rem; overflow-x: auto; font-family: var(--mono); font-size: 0.85rem;
+      margin: 0.5rem 0 0; }
+code { font-family: var(--mono); font-size: 0.88em; }
+footer { padding: 2.5rem 0 3.5rem; color: var(--ink-faint); font-size: 0.88rem; }
+footer a { color: var(--ink-soft); }
+a { color: var(--accent); }
+table.kinds { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+table.kinds th, table.kinds td { text-align: left; padding: 0.5rem 0.75rem 0.5rem 0;
+                                  border-bottom: 1px solid var(--line); }
+table.kinds th { color: var(--ink-faint); font-weight: 600; font-size: 0.78rem;
+                 text-transform: uppercase; letter-spacing: 0.04em; }
+.flow { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+        counter-reset: step; }
+.flow > div { position: relative; padding-top: 2.4rem; }
+.flow > div::before {
+  counter-increment: step; content: counter(step);
+  position: absolute; top: 0; left: 0;
+  width: 1.7rem; height: 1.7rem; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent);
+  font-family: var(--mono); font-size: 0.85rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.flow h3 { margin: 0 0 0.35rem; font-size: 1rem; }
+.flow p { margin: 0; color: var(--ink-soft); font-size: 0.92rem; }
+.features { display: grid; gap: 0 2.5rem; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); }
+.features dt { font-weight: 600; margin-top: 1.4rem; font-size: 0.97rem; }
+.features dt:first-of-type { margin-top: 0; }
+.features dd { margin: 0.2rem 0 0; color: var(--ink-soft); font-size: 0.92rem; }
+.status { list-style: none; padding: 0; margin: 0; }
+.status li { padding: 0.55rem 0 0.55rem 1.5rem; border-bottom: 1px solid var(--line);
+             position: relative; color: var(--ink-soft); font-size: 0.93rem; }
+.status li::before { content: ""; position: absolute; left: 0; top: 1.05rem;
+                     width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--accent); }
+.status li:last-child { border-bottom: 0; }
+.status strong { color: var(--ink); font-weight: 600; }
+/* Brand mark. The logo is the original white one, which is white on transparency, so it
+   needs a dark plate behind it or it disappears against the light theme's ground. The plate is
+   a fixed colour on purpose rather than a theme token: it must stay dark in BOTH themes. */
+.brand { display: inline-flex; align-items: center; text-decoration: none; }
+.plate { display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 7px; padding: 0.3rem 0.55rem; }
+.plate-dark { background: #0e1418; }
+.plate-light { background: #ffffff; border: 1px solid var(--line); }
+.brand img { height: 40px; width: auto; display: block; }
+
+.flow-2 { grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); margin-bottom: 2rem; }
+p.tiny { font-size: 0.86rem; margin: 0.5rem 0 0; }
+
+/* Logo page. Each variant is shown on the background it is designed for, so nobody picks the
+   white one for a white page. */
+.logogrid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
+.logotile { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); }
+.logotile .plate { width: 100%; border-radius: 0; padding: 2rem; }
+.logotile img { max-width: 100%; height: auto; display: block; }
+.logotile .meta { padding: 0.9rem 1rem; border-top: 1px solid var(--line); }
+.logotile .meta h3 { margin: 0 0 0.35rem; font-size: 0.98rem; }
+.logotile .meta p { margin: 0 0 0.5rem; font-size: 0.86rem; color: var(--ink-soft); }
+.logotile .meta code { font-size: 0.78rem; word-break: break-all; }
+
+.postmeta { color: var(--ink-faint); font-size: 0.86rem; margin: 0 0 0.3rem; }
+
+.doclist { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+.doccard { display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+           padding: 1.1rem; text-decoration: none; color: inherit; }
+.doccard:hover { border-color: var(--accent); }
+.doccard h3 { margin: 0 0 0.3rem; font-size: 1rem; color: var(--ink); }
+.doccard p { margin: 0; font-size: 0.88rem; color: var(--ink-soft); }
+.doccard .stub { color: var(--ink-faint); font-style: italic; }
+article.doc { padding: 2.5rem 0 3rem; }
+article.doc h2 { font-size: 1.7rem; margin: 0 0 1.2rem; letter-spacing: -0.02em; }
+article.doc h3 { font-size: 1.15rem; margin: 2rem 0 0.6rem; }
+article.doc h4 { font-size: 1rem; margin: 1.5rem 0 0.5rem; }
+article.doc p { margin: 0 0 1rem; }
+article.doc li { margin: 0.25rem 0; }
+article.doc blockquote { margin: 1rem 0; padding: 0.7rem 1rem; border-left: 3px solid var(--accent);
+                         background: var(--accent-soft); color: var(--ink-soft); font-size: 0.93rem; }
+pre.code { background: var(--panel); border: 1px solid var(--line); border-radius: 7px;
+           padding: 0.9rem 1.1rem; overflow-x: auto; font-family: var(--mono);
+           font-size: 0.82rem; line-height: 1.5; margin: 0 0 1.1rem; }
+.backlink { display: inline-block; margin-bottom: 1.5rem; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="../index.html">
+    <span class="plate plate-dark"><img src="../media/images/Logos/FebrisLogo_White.png" alt="Febris"></span>
+  </a>
+  <nav class="top">
+    <a href="../index.html#downloads">Downloads</a>
+    <a href="../index.html#docs">Docs</a>
+    <a href="../updates.html">Updates</a>
+    <a href="../about.html">About</a>
+    <a href="../index.html#run">Self-host</a>
+    <a href="https://github.com/TRget88/Febris_Node">Source</a>
+  </nav>
+</div></header>
+
+<article class="doc"><div class="wrap">
+  <a class="backlink" href="../updates.html">Back to all updates</a>
+  <p class="postmeta">2026-09-01</p>
+  <h1>The end-user deployment is open source</h1>
+  <p>The end-user deployment, the piece Febris calls the node, is open source. It was always free to run. Now the source is public too, and a group that wants one can host it themselves with their own content. The reasoning is on the <a href="../about.html">about page</a>.</p>
+<h2 id="what-is-actually-published">What is actually published</h2>
+<p>The node itself, and both simulation SDKs. The C# SDK is on nuget.org, the C++ SDK ships as a release zip and through a vcpkg registry, and the two produce byte-identical output at the same version so a mixed estate stays consistent.</p>
+<h2 id="what-is-not-published-yet">What is not published yet</h2>
+<p>The Windows client suite and the Android pair. The node&#x27;s distribution surface works and this site reads directly from the same feed the node does, so the moment those clients are published the download cards here fill in on their own. Until then the cards say plainly that they are not published rather than hiding the row.</p>
+<h2 id="honest-caveats">Honest caveats</h2>
+<p>This is pre-1.0 and there is one maintainer, so expect slow review and no on-call. Interfaces can still change before 1.0, including configuration keys and API routes, and there is no long-term-support branch. Upgrades run migrations at startup with no downgrade path yet, so take a database backup first. The test suites are green and ship in the repository, which makes them the honest measure of what is actually pinned rather than a claim you have to take on trust.</p>
+</div></article>
+
+<footer><div class="wrap">
+  <p>Febris is open source. The delivery node is AGPL-3.0, the SDKs are Apache-2.0, this site is MIT.</p>
+  <p>
+    <a href="https://github.com/TRget88/Febris_Node">Node</a> &middot;
+    <a href="https://github.com/TRget88/Febris_SDK">SDK</a> &middot;
+    <a href="https://github.com/TRget88/Febris_ClientDist">Distribution feed</a> &middot;
+    <a href="https://github.com/TRget88/Febris_Landing">This site</a>
+  </p>
+</div></footer>
+</body>
+</html>

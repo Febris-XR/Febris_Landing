@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C++ SDK, Febris documentation</title>
+<meta name="description" content="Febris is an open source training and simulation platform. Self-host a delivery node and connect PC, mobile and XR clients.">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<style>
+:root {
+  --ink: #14181c; --ink-soft: #4a545e; --ink-faint: #79848f;
+  --ground: #fbfaf7; --panel: #ffffff; --line: #e3e0d9;
+  --accent: #0f6d67; --accent-soft: #e6f1f0;
+  --warn-bg: #fdf6e6; --warn-line: #e8d5a3; --warn-ink: #6b5310;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e8eaec; --ink-soft: #a3adb6; --ink-faint: #78838d;
+    --ground: #14171a; --panel: #1b1f23; --line: #2c3238;
+    --accent: #4fbfb4; --accent-soft: #16302e;
+    --warn-bg: #2a2413; --warn-line: #5c4c1e; --warn-ink: #e3c877;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e8eaec; --ink-soft: #a3adb6; --ink-faint: #78838d;
+  --ground: #14171a; --panel: #1b1f23; --line: #2c3238;
+  --accent: #4fbfb4; --accent-soft: #16302e;
+  --warn-bg: #2a2413; --warn-line: #5c4c1e; --warn-ink: #e3c877;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font-family: var(--sans); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 0 1.5rem; }
+header.top { border-bottom: 1px solid var(--line); padding: 1.1rem 0; }
+header.top .wrap { display: flex; align-items: baseline; gap: 1.25rem; flex-wrap: wrap; }
+.brand { font-weight: 650; letter-spacing: -0.01em; font-size: 1.05rem; color: var(--ink); text-decoration: none; }
+.brand span { color: var(--accent); }
+nav.top { margin-left: auto; display: flex; gap: 1.25rem; }
+nav.top a { color: var(--ink-soft); text-decoration: none; font-size: 0.92rem; }
+nav.top a:hover { color: var(--accent); }
+.hero { padding: 4rem 0 3rem; border-bottom: 1px solid var(--line); }
+.hero h1 { font-size: clamp(2rem, 5vw, 2.9rem); line-height: 1.15; margin: 0 0 1rem;
+           letter-spacing: -0.025em; text-wrap: balance; }
+.hero p.lede { font-size: 1.15rem; color: var(--ink-soft); max-width: 44rem; margin: 0 0 1.75rem; }
+.cta { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.btn { display: inline-block; padding: 0.6rem 1.15rem; border-radius: 6px; text-decoration: none;
+       font-size: 0.95rem; font-weight: 550; border: 1px solid transparent; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { border-color: var(--line); color: var(--ink); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+section { padding: 3.25rem 0; border-bottom: 1px solid var(--line); }
+section h2 { font-size: 1.5rem; letter-spacing: -0.015em; margin: 0 0 0.5rem; }
+section p.sub { color: var(--ink-soft); margin: 0 0 2rem; max-width: 46rem; }
+.grid { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); }
+.card { scroll-margin-top: 1.5rem; background: var(--panel); border: 1px solid var(--line); border-radius: 9px;
+        padding: 1.35rem; display: flex; flex-direction: column; }
+.card h3 { margin: 0 0 0.15rem; font-size: 1.08rem; letter-spacing: -0.01em; }
+.card .plat { font-size: 0.8rem; color: var(--ink-faint); margin: 0 0 0.7rem; }
+.card p.desc { margin: 0 0 1.1rem; color: var(--ink-soft); font-size: 0.93rem; flex: 1; }
+.pill { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em;
+        text-transform: uppercase; padding: 0.16rem 0.5rem; border-radius: 999px; }
+.pill-live { background: var(--accent-soft); color: var(--accent); }
+.pill-soon { background: var(--line); color: var(--ink-faint); }
+.meta { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-faint);
+        border-top: 1px solid var(--line); padding-top: 0.85rem; margin-top: 0.4rem; }
+.meta div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.12rem 0; }
+.meta .hash { word-break: break-all; text-align: right; }
+.note { background: var(--warn-bg); border: 1px solid var(--warn-line); color: var(--warn-ink);
+        border-radius: 7px; padding: 0.8rem 1rem; font-size: 0.88rem; }
+pre { background: var(--panel); border: 1px solid var(--line); border-radius: 7px;
+      padding: 0.85rem 1rem; overflow-x: auto; font-family: var(--mono); font-size: 0.85rem;
+      margin: 0.5rem 0 0; }
+code { font-family: var(--mono); font-size: 0.88em; }
+footer { padding: 2.5rem 0 3.5rem; color: var(--ink-faint); font-size: 0.88rem; }
+footer a { color: var(--ink-soft); }
+a { color: var(--accent); }
+table.kinds { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+table.kinds th, table.kinds td { text-align: left; padding: 0.5rem 0.75rem 0.5rem 0;
+                                  border-bottom: 1px solid var(--line); }
+table.kinds th { color: var(--ink-faint); font-weight: 600; font-size: 0.78rem;
+                 text-transform: uppercase; letter-spacing: 0.04em; }
+.flow { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+        counter-reset: step; }
+.flow > div { position: relative; padding-top: 2.4rem; }
+.flow > div::before {
+  counter-increment: step; content: counter(step);
+  position: absolute; top: 0; left: 0;
+  width: 1.7rem; height: 1.7rem; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent);
+  font-family: var(--mono); font-size: 0.85rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.flow h3 { margin: 0 0 0.35rem; font-size: 1rem; }
+.flow p { margin: 0; color: var(--ink-soft); font-size: 0.92rem; }
+.features { display: grid; gap: 0 2.5rem; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); }
+.features dt { font-weight: 600; margin-top: 1.4rem; font-size: 0.97rem; }
+.features dt:first-of-type { margin-top: 0; }
+.features dd { margin: 0.2rem 0 0; color: var(--ink-soft); font-size: 0.92rem; }
+.status { list-style: none; padding: 0; margin: 0; }
+.status li { padding: 0.55rem 0 0.55rem 1.5rem; border-bottom: 1px solid var(--line);
+             position: relative; color: var(--ink-soft); font-size: 0.93rem; }
+.status li::before { content: ""; position: absolute; left: 0; top: 1.05rem;
+                     width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--accent); }
+.status li:last-child { border-bottom: 0; }
+.status strong { color: var(--ink); font-weight: 600; }
+/* Brand mark. The logo is the original white one, which is white on transparency, so it
+   needs a dark plate behind it or it disappears against the light theme's ground. The plate is
+   a fixed colour on purpose rather than a theme token: it must stay dark in BOTH themes. */
+.brand { display: inline-flex; align-items: center; text-decoration: none; }
+.plate { display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 7px; padding: 0.3rem 0.55rem; }
+.plate-dark { background: #0e1418; }
+.plate-light { background: #ffffff; border: 1px solid var(--line); }
+.brand img { height: 40px; width: auto; display: block; }
+
+.flow-2 { grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); margin-bottom: 2rem; }
+p.tiny { font-size: 0.86rem; margin: 0.5rem 0 0; }
+
+/* Logo page. Each variant is shown on the background it is designed for, so nobody picks the
+   white one for a white page. */
+.logogrid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
+.logotile { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); }
+.logotile .plate { width: 100%; border-radius: 0; padding: 2rem; }
+.logotile img { max-width: 100%; height: auto; display: block; }
+.logotile .meta { padding: 0.9rem 1rem; border-top: 1px solid var(--line); }
+.logotile .meta h3 { margin: 0 0 0.35rem; font-size: 0.98rem; }
+.logotile .meta p { margin: 0 0 0.5rem; font-size: 0.86rem; color: var(--ink-soft); }
+.logotile .meta code { font-size: 0.78rem; word-break: break-all; }
+
+.postmeta { color: var(--ink-faint); font-size: 0.86rem; margin: 0 0 0.3rem; }
+
+.doclist { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+.doccard { display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+           padding: 1.1rem; text-decoration: none; color: inherit; }
+.doccard:hover { border-color: var(--accent); }
+.doccard h3 { margin: 0 0 0.3rem; font-size: 1rem; color: var(--ink); }
+.doccard p { margin: 0; font-size: 0.88rem; color: var(--ink-soft); }
+.doccard .stub { color: var(--ink-faint); font-style: italic; }
+article.doc { padding: 2.5rem 0 3rem; }
+article.doc h2 { font-size: 1.7rem; margin: 0 0 1.2rem; letter-spacing: -0.02em; }
+article.doc h3 { font-size: 1.15rem; margin: 2rem 0 0.6rem; }
+article.doc h4 { font-size: 1rem; margin: 1.5rem 0 0.5rem; }
+article.doc p { margin: 0 0 1rem; }
+article.doc li { margin: 0.25rem 0; }
+article.doc blockquote { margin: 1rem 0; padding: 0.7rem 1rem; border-left: 3px solid var(--accent);
+                         background: var(--accent-soft); color: var(--ink-soft); font-size: 0.93rem; }
+pre.code { background: var(--panel); border: 1px solid var(--line); border-radius: 7px;
+           padding: 0.9rem 1.1rem; overflow-x: auto; font-family: var(--mono);
+           font-size: 0.82rem; line-height: 1.5; margin: 0 0 1.1rem; }
+.backlink { display: inline-block; margin-bottom: 1.5rem; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="../index.html">
+    <span class="plate plate-dark"><img src="../media/images/Logos/FebrisLogo_White.png" alt="Febris"></span>
+  </a>
+  <nav class="top">
+    <a href="../index.html#downloads">Downloads</a>
+    <a href="../index.html#docs">Docs</a>
+    <a href="../updates.html">Updates</a>
+    <a href="../about.html">About</a>
+    <a href="../index.html#run">Self-host</a>
+    <a href="https://github.com/TRget88/Febris_Node">Source</a>
+  </nav>
+</div></header>
+
+<article class="doc"><div class="wrap">
+  <a class="backlink" href="../index.html#docs">Back to all guides</a>
+  
+  <h2 id="c-simulation-sdk">C++ simulation SDK</h2>
+<p>The native twin of the C# SDK. Use it when your simulation or engine cannot host managed code. At the same MAJOR.MINOR version the two SDKs emit <strong>byte-identical</strong> statement JSON, verified on every release by a conformance harness that runs both and compares the wire output, so a mixed estate stays consistent.</p>
+<p>Supported today: Windows x64, built with MSVC v143, C++17.</p>
+<h3 id="installing-it">Installing it</h3>
+<p>The SDK is published two ways.</p>
+<p>Through vcpkg, using the Febris registry. Add the registry to your <code>vcpkg-configuration.json</code>, pointing at <code>https://github.com/TRget88/Febris_VcpkgRegistry</code>, then:</p>
+<pre class="code" data-lang="bash"><code>vcpkg install febris-simulation-sdk</code></pre>
+<p>Or take the release bundle directly from the <a href="https://github.com/TRget88/Febris_SDK/releases">Febris_SDK releases</a>. It contains the DLL, the import library and the public header. Every release also ships a <code>SHA256SUMS</code> file, and verifying the download against it is worth the few seconds.</p>
+<h3 id="the-interface-is-a-flat-c-abi">The interface is a flat C ABI</h3>
+<p><code>FebrisSimApi.h</code> is the <strong>only</strong> supported binary interface. The C++ classes behind it are deliberately not exported, so there is no MSVC name mangling to lock you to one compiler or CRT, and the surface is callable by P/Invoke from a C# host if you need that.</p>
+<p>If you would rather compile the SDK sources directly into your own target, define <code>FEBRISSIM_STATIC</code> before including the header and it stops importing.</p>
+<h3 id="four-conventions-worth-knowing-before-you-start">Four conventions worth knowing before you start</h3>
+<p><strong>Status codes.</strong> Functions returning <code>int32_t</code> yield <code>FEBRISSIM_OK</code> (0) or a negative error. The library never lets a C++ exception cross the boundary.</p>
+<pre class="code" data-lang="cpp"><code>#define FEBRISSIM_OK                 0
+#define FEBRISSIM_E_INVALID_ARG     (-1)   /* null or malformed required argument */
+#define FEBRISSIM_E_EXCEPTION       (-2)   /* an internal failure caught at the boundary */
+#define FEBRISSIM_E_NOT_INITIALIZED (-3)   /* call FebrisSimInitialize first */</code></pre>
+<p><strong>String outputs use a two-call buffer protocol.</strong> Any function taking <code>(char* buf, int32_t cap)</code> returns the <strong>required byte count including the NUL terminator</strong>, or a negative error. Call it with <code>(NULL, 0)</code> to size the buffer, then again to fill it. When <code>cap</code> is greater than zero it writes up to <code>cap - 1</code> bytes and NUL-terminates. All text is UTF-8.</p>
+<p><strong>It is single-threaded by design</strong>, exactly like the C# SDK. There is no internal synchronisation. Drive it from one thread.</p>
+<p><strong>Void functions swallow their failures</strong>, mirroring the C# methods they came from. Register a logger with <code>FebrisSimSetLogger</code> if you want to see them, otherwise a failed update is silent.</p>
+<h3 id="sizing-a-string-result">Sizing a string result</h3>
+<p>This pattern appears throughout the API, so it is worth writing once:</p>
+<pre class="code" data-lang="cpp"><code>#include &quot;FebrisSimApi.h&quot;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+bool GetReferenceUuid(std::string&amp; out)
+{
+    int32_t needed = FebrisSimGetReferenceUuid(nullptr, 0);   // ask for the size
+    if (needed &lt; 0) { return false; }                          // negative is an error code
+
+    std::vector&lt;char&gt; buf(static_cast&lt;size_t&gt;(needed));        // needed INCLUDES the NUL
+    if (FebrisSimGetReferenceUuid(buf.data(), needed) &lt; 0) { return false; }
+
+    out.assign(buf.data());
+    return true;
+}</code></pre>
+<h3 id="a-minimal-session">A minimal session</h3>
+<p>Initialise once at startup with the launch data your host passed you, update the statement as the session progresses, then end it.</p>
+<pre class="code" data-lang="cpp"><code>#include &quot;FebrisSimApi.h&quot;
+#include &lt;vector&gt;
+
+// 1. Check you are compiled against the ABI you expect. This changes only when an existing
+//    function changes shape, which is a MAJOR event. New functions do not bump it.
+if (FebrisSimAbiVersion() != FEBRISSIM_ABI_VERSION) { /* refuse to run */ }
+
+// 2. Initialise. febrisData is the launch payload; on Windows it arrives on the command line.
+//    ready receives 1 when the platform handler accepted and persisted the first statement.
+int32_t ready = 0;
+int32_t extrasNeeded = FebrisSimInitialize(febrisData, FebrisSimOs_WindowsPC, &amp;ready, nullptr, 0);
+std::vector&lt;char&gt; extras(extrasNeeded &gt; 0 ? extrasNeeded : 1);
+FebrisSimInitialize(febrisData, FebrisSimOs_WindowsPC, &amp;ready, extras.data(), extrasNeeded);
+
+// On Windows the extras object is the string &quot;null&quot;: the handler writes to the file system
+// instead. On Android it carries the intent extras you broadcast onward.
+
+// 3. During the session, keep the duration current.
+FebrisSimDurationUpdateMs(elapsedMilliseconds);
+
+// 4. End it, reporting completion and pass state with a scaled score.
+int32_t endReady = 0;
+FebrisSimEndSimulationWith(/* completed */ 1, /* passed */ 1, scaledScore, durationMs,
+                           &amp;endReady, nullptr, 0);</code></pre>
+<h3 id="where-the-statement-goes">Where the statement goes</h3>
+<p>The SDK does not talk to a node or to any LRS. It authors the statement and hands it to the platform handler.</p>
+<p>On Windows the handler writes a <code>{uuid}.json</code> file into your Documents folder, under <code>Febris\statements\statements</code>. Something else moves it from there to a node, which is the PC Statement Manager&#x27;s job. If you are embedding the SDK in your own host, that hand-off is yours to arrange, and <code>FebrisSimSetBasePath</code> lets you redirect the whole tree somewhere you control.</p>
+<p>On Android nothing is written to disk. The SDK returns the statement as intent extras and your host broadcasts them to the Companion.</p>
+<h3 id="enum-values-are-the-c-values">Enum values are the C# values</h3>
+<p>Every enum in the header carries the integer values from the C# API verbatim, so the two SDKs agree on the wire and you can cross-reference the C# documentation without a translation table.</p>
+<pre class="code" data-lang="cpp"><code>enum FebrisSimOs { WindowsPC = 0, Android = 1, iOSvariant = 2, WinMobile = 3 };
+enum FebrisSimLogLevel { Debug = 0, Info = 1, Warn = 2, Error = 3 };</code></pre>
+<h3 id="versioning">Versioning</h3>
+<p>The ABI evolves <strong>additively</strong> within a MINOR version: new functions may appear, existing signatures never change shape. <code>FEBRISSIM_ABI_VERSION</code> is bumped only when an existing function changes meaning, which is a MAJOR event. Checking it at startup, as above, is cheap insurance.</p>
+</div></article>
+
+<footer><div class="wrap">
+  <p>Febris is open source. The delivery node is AGPL-3.0, the SDKs are Apache-2.0, this site is MIT.</p>
+  <p>
+    <a href="https://github.com/TRget88/Febris_Node">Node</a> &middot;
+    <a href="https://github.com/TRget88/Febris_SDK">SDK</a> &middot;
+    <a href="https://github.com/TRget88/Febris_ClientDist">Distribution feed</a> &middot;
+    <a href="https://github.com/TRget88/Febris_Landing">This site</a>
+  </p>
+</div></footer>
+</body>
+</html>

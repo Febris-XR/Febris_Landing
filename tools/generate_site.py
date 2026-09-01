@@ -18,6 +18,9 @@ import os
 import sys
 import urllib.request
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import render_docs
+
 FEED_URL = "https://raw.githubusercontent.com/TRget88/Febris_ClientDist/main/manifest.json"
 # Must match the custom domain configured in Settings -> Pages, and must be a name that can
 # legally hold a CNAME. The apex febr.is cannot: it carries the Google Workspace MX records,
@@ -179,6 +182,51 @@ table.kinds th { color: var(--ink-faint); font-weight: 600; font-size: 0.78rem;
                      width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--accent); }
 .status li:last-child { border-bottom: 0; }
 .status strong { color: var(--ink); font-weight: 600; }
+/* Brand mark. The logo is the original white one, which is white on transparency, so it
+   needs a dark plate behind it or it disappears against the light theme's ground. The plate is
+   a fixed colour on purpose rather than a theme token: it must stay dark in BOTH themes. */
+.brand { display: inline-flex; align-items: center; text-decoration: none; }
+.plate { display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 7px; padding: 0.3rem 0.55rem; }
+.plate-dark { background: #0e1418; }
+.plate-light { background: #ffffff; border: 1px solid var(--line); }
+.brand img { height: 40px; width: auto; display: block; }
+
+.flow-2 { grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); margin-bottom: 2rem; }
+p.tiny { font-size: 0.86rem; margin: 0.5rem 0 0; }
+
+/* Logo page. Each variant is shown on the background it is designed for, so nobody picks the
+   white one for a white page. */
+.logogrid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
+.logotile { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); }
+.logotile .plate { width: 100%; border-radius: 0; padding: 2rem; }
+.logotile img { max-width: 100%; height: auto; display: block; }
+.logotile .meta { padding: 0.9rem 1rem; border-top: 1px solid var(--line); }
+.logotile .meta h3 { margin: 0 0 0.35rem; font-size: 0.98rem; }
+.logotile .meta p { margin: 0 0 0.5rem; font-size: 0.86rem; color: var(--ink-soft); }
+.logotile .meta code { font-size: 0.78rem; word-break: break-all; }
+
+.postmeta { color: var(--ink-faint); font-size: 0.86rem; margin: 0 0 0.3rem; }
+
+.doclist { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+.doccard { display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+           padding: 1.1rem; text-decoration: none; color: inherit; }
+.doccard:hover { border-color: var(--accent); }
+.doccard h3 { margin: 0 0 0.3rem; font-size: 1rem; color: var(--ink); }
+.doccard p { margin: 0; font-size: 0.88rem; color: var(--ink-soft); }
+.doccard .stub { color: var(--ink-faint); font-style: italic; }
+article.doc { padding: 2.5rem 0 3rem; }
+article.doc h2 { font-size: 1.7rem; margin: 0 0 1.2rem; letter-spacing: -0.02em; }
+article.doc h3 { font-size: 1.15rem; margin: 2rem 0 0.6rem; }
+article.doc h4 { font-size: 1rem; margin: 1.5rem 0 0.5rem; }
+article.doc p { margin: 0 0 1rem; }
+article.doc li { margin: 0.25rem 0; }
+article.doc blockquote { margin: 1rem 0; padding: 0.7rem 1rem; border-left: 3px solid var(--accent);
+                         background: var(--accent-soft); color: var(--ink-soft); font-size: 0.93rem; }
+pre.code { background: var(--panel); border: 1px solid var(--line); border-radius: 7px;
+           padding: 0.9rem 1.1rem; overflow-x: auto; font-family: var(--mono);
+           font-size: 0.82rem; line-height: 1.5; margin: 0 0 1.1rem; }
+.backlink { display: inline-block; margin-bottom: 1.5rem; font-size: 0.9rem; }
 """
 
 
@@ -203,13 +251,19 @@ def page(title, body, depth=0):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>%s</title>
 <meta name="description" content="Febris is an open source training and simulation platform. Self-host a delivery node and connect PC, mobile and XR clients.">
+<link rel="icon" href="%sfavicon.ico" sizes="any">
 <style>%s</style>
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <a class="brand" href="%sindex.html">Febris<span>.</span></a>
+  <a class="brand" href="%sindex.html">
+    <span class="plate plate-dark"><img src="%smedia/images/Logos/FebrisLogo_White.png" alt="Febris"></span>
+  </a>
   <nav class="top">
     <a href="%sindex.html#downloads">Downloads</a>
+    <a href="%sindex.html#docs">Docs</a>
+    <a href="%supdates.html">Updates</a>
+    <a href="%sabout.html">About</a>
     <a href="%sindex.html#run">Self-host</a>
     <a href="https://github.com/TRget88/Febris_Node">Source</a>
   </nav>
@@ -226,7 +280,7 @@ def page(title, body, depth=0):
 </div></footer>
 </body>
 </html>
-""" % (esc(title), CSS, up, up, up, body)
+""" % (esc(title), up, CSS, up, up, up, up, up, up, up, body)
 
 
 def card_for(kind, entry):
@@ -275,7 +329,126 @@ def card_for(kind, entry):
     return '<div class="card" id="%s">%s %s %s %s %s</div>' % (kind["slug"], pill, head, desc, action, meta)
 
 
-def build_index(manifest):
+def build_doc(doc):
+    """One guide as its own page."""
+    note = ('<blockquote>%s</blockquote>' % esc(doc["note"])) if doc.get("note") else ""
+    body = """
+<article class="doc"><div class="wrap">
+  <a class="backlink" href="../index.html#docs">Back to all guides</a>
+  %s
+  %s
+</div></article>
+""" % (note, doc["html"])
+    return page("%s, Febris documentation" % doc["title"], body, depth=1)
+
+
+def build_about(about):
+    """The hand-written About page. Carries a visible draft banner while unwritten, so a
+    half-finished story cannot be published by accident."""
+    banner = ""
+    if about["todos"]:
+        banner = ('<blockquote><strong>Draft.</strong> This page still has %d unwritten '
+                  'section(s) and is not ready to publish.</blockquote>' % about["todos"])
+    body = """
+<article class="doc"><div class="wrap">
+  %s
+  %s
+</div></article>
+""" % (banner, about["html"])
+    return page("About Febris", body)
+
+
+def build_logo():
+    """Brand assets, deliberately UNLISTED: reachable by URL, absent from every nav.
+
+    It exists so the maintainer has one page to point a designer or a press contact at.
+
+    The asset paths are NOT arbitrary. `/media/images/Logos/FebrisLogo_White.png` is the exact
+    path the old marketing site served, and five shipped email templates across the Admin
+    Portal, SSO and Marketing API hardcode `https://febr.is/media/images/Logos/FebrisLogo_White.png`
+    as the header image. Every one of those mails already in somebody's inbox fetches that URL
+    when it is opened. Serving the file from the same path is what keeps them from breaking, so
+    these two paths must not be "tidied" into an assets folder.
+    """
+    body = """
+<article class="doc"><div class="wrap">
+  <h1>Brand assets</h1>
+  <p>The Febris mark in its two original variants. Right-click to save, or hotlink directly.
+  These URLs are stable and are not going to move.</p>
+
+  <div class="logogrid">
+    <div class="logotile">
+      <div class="plate plate-dark"><img src="media/images/Logos/FebrisLogo_White.png" alt="Febris logo, white"></div>
+      <div class="meta">
+        <h3>White</h3>
+        <p>For dark backgrounds. This is the variant the email templates use.</p>
+        <code>https://www.febr.is/media/images/Logos/FebrisLogo_White.png</code>
+      </div>
+    </div>
+    <div class="logotile">
+      <div class="plate plate-light"><img src="media/images/Logos/FebrisLogo_Blue.png" alt="Febris logo, blue"></div>
+      <div class="meta">
+        <h3>Blue</h3>
+        <p>For light backgrounds.</p>
+        <code>https://www.febr.is/media/images/Logos/FebrisLogo_Blue.png</code>
+      </div>
+    </div>
+  </div>
+
+  <h2>Why these paths look old</h2>
+  <p>They are the paths the previous marketing site used. Emails sent from Febris over the years
+  embed the white logo by absolute URL, and those messages still sit in people's inboxes and
+  still fetch the image when opened. Keeping the path identical is what stops those older mails
+  from rendering with a broken image, so the location is deliberate rather than untidy.</p>
+
+  <h2>Favicon</h2>
+  <p>The site icon is the original one as well: <code>https://www.febr.is/favicon.ico</code></p>
+
+  <p class="tiny"><a href="index.html">Back to the site</a></p>
+</div></article>
+"""
+    return page("Febris brand assets", body)
+
+
+def build_updates(posts):
+    """The updates index. Empty is a legitimate state and says so rather than rendering
+    an empty list that looks broken."""
+    if posts:
+        items = "".join(
+            '<a class="doccard" href="updates/%s.html"><p class="postmeta">%s</p>'
+            '<h3>%s</h3>%s</a>' % (
+                p["key"], esc(p["date"]), esc(p["title"]),
+                '<p>%s</p>' % esc(p["summary"]) if p.get("summary") else "")
+            for p in posts)
+        listing = '<div class="doclist">%s</div>' % items
+    else:
+        listing = "<p>No updates posted yet.</p>"
+
+    body = """
+<article class="doc"><div class="wrap">
+  <h1>Updates</h1>
+  <p>Release notes and progress on the project. Written by hand, so silence here means nothing
+  was worth saying rather than that something is broken.</p>
+  %s
+</div></article>
+""" % listing
+    return page("Febris updates", body)
+
+
+def build_update(post):
+    """One update post as its own page."""
+    body = """
+<article class="doc"><div class="wrap">
+  <a class="backlink" href="../updates.html">Back to all updates</a>
+  <p class="postmeta">%s</p>
+  <h1>%s</h1>
+  %s
+</div></article>
+""" % (esc(post["date"]), esc(post["title"]), post["html"])
+    return page("%s, Febris updates" % post["title"], body, depth=1)
+
+
+def build_index(manifest, docs):
     by_kind = {}
     for p in manifest.get("packages", []):
         if not p.get("obsolete"):
@@ -283,6 +456,13 @@ def build_index(manifest):
 
     cards = "".join(card_for(k, by_kind.get(k["id"])) for k in KINDS)
     live = sum(1 for k in KINDS if by_kind.get(k["id"]))
+
+    doccards = "".join(
+        '<a class="doccard" id="%s" href="docs/%s.html"><h3>%s</h3>%s</a>' % (
+            d["anchor"], d["key"], esc(d["title"]),
+            ('<p class="stub">Not written yet</p>' if d["status"] == "stub"
+             else '<p>%s</p>' % esc(d.get("summary") or "")))
+        for d in docs)
 
     rows = "".join(
         '<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % (
@@ -375,20 +555,33 @@ docker compose up -d --build</pre>
   </table>
 </div></section>
 
-<section id="status"><div class="wrap">
-  <h2>Where the project actually is</h2>
-  <p class="sub">Pre-1.0, and honest about it. Read this before you build on it.</p>
-  <ul class="status">
-    <li><strong>Solo maintainer.</strong> Expect slow review and no on-call.</li>
-    <li><strong>Interfaces may change before 1.0</strong>, including configuration keys and API
-    routes. There is no long-term-support branch.</li>
-    <li><strong>Upgrades run migrations at startup and there is no downgrade path yet.</strong>
-    Take a database backup first.</li>
-    <li><strong>The test suites are green</strong> and are the honest measure of what is pinned.
-    They ship in the repository so you can run them yourself.</li>
-    <li><strong>The Windows and mobile clients are not published yet.</strong> The node's
-    distribution surface works, but until those clients ship it has little to hand out.</li>
-  </ul>
+<section id="docs"><div class="wrap">
+  <h2>How to use it</h2>
+  <p class="sub">Guides for each piece, carried over from the node's own documentation. Where a
+  guide is unwritten or known to be incomplete, it says so on the page rather than pretending
+  otherwise.</p>
+
+  <div class="flow flow-2">
+    <div>
+      <h3>PC</h3>
+      <p>The PC suite runs the simulation on a Windows machine. You install it once, register
+      that PC on your node's Hardware page, and paste in the credential the node issues. From
+      then on the Launcher pulls the modules the learner is assigned, starts the session, and the
+      Statement Manager sends the resulting xAPI records back to your node on its own.</p>
+      <p class="tiny"><a href="docs/pc.html">Read the PC guide</a></p>
+    </div>
+    <div>
+      <h3>Mobile Server</h3>
+      <p>The Mobile Server is the Android app that manages your headsets. You register it the
+      same way, then use it to discover a headset over Bluetooth, pair with it by confirming a
+      six digit code shown on both screens, and install the Mobile Companion onto it. From then
+      on it distributes module archives over a direct WiFi link and relays the resulting records
+      back to your node, so the headsets never need your network credentials.</p>
+      <p class="tiny"><a href="docs/mobile-server.html">Read the Mobile Server guide</a></p>
+    </div>
+  </div>
+
+  <div class="doclist">%(doccards)s</div>
 </div></section>
 
 <section id="downloads"><div class="wrap">
@@ -398,7 +591,7 @@ docker compose up -d --build</pre>
   are published today, and the rest say so plainly rather than being hidden.</p>
   <div class="grid">%(cards)s</div>
 </div></section>
-""" % {"live": live, "total": len(KINDS), "cards": cards, "rows": rows}
+""" % {"live": live, "total": len(KINDS), "cards": cards, "rows": rows, "doccards": doccards}
     return page("Febris, self-hosted XR and simulation training", body)
 
 
@@ -424,7 +617,25 @@ def main():
         print("refusing: unknown feed schemaVersion %r" % manifest.get("schemaVersion"))
         return 1
 
-    pages = {os.path.join(SITE, "index.html"): build_index(manifest)}
+    docs = render_docs.load_all(ROOT)
+    pages = {os.path.join(SITE, "index.html"): build_index(manifest, docs)}
+    for d in docs:
+        pages[os.path.join(SITE, "docs", d["key"] + ".html")] = build_doc(d)
+
+    # Unlisted by design; see build_logo.
+    pages[os.path.join(SITE, "logo.html")] = build_logo()
+
+    posts = render_docs.load_updates(ROOT)
+    pages[os.path.join(SITE, "updates.html")] = build_updates(posts)
+    for p in posts:
+        pages[os.path.join(SITE, "updates", p["key"] + ".html")] = build_update(p)
+
+    about = render_docs.load_page(ROOT, "about")
+    if about:
+        pages[os.path.join(SITE, "about.html")] = build_about(about)
+        if about["todos"]:
+            print("NOTE: pages/about.md still has %d unwritten TODO section(s); "
+                  "about.html carries a draft banner" % about["todos"])
     # Pages needs this or it runs the output through Jekyll and drops anything underscored.
     pages[os.path.join(SITE, ".nojekyll")] = ""
     # The custom domain has to live INSIDE the artifact. Under Actions-based deployment the
