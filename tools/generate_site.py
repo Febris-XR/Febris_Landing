@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """Generate the Febris landing site from the client-dist feed manifest.
 
-The feed is the single source of truth. Every download card, version string, size and
-checksum on the generated pages comes from manifest.json, so the site cannot drift from
-what the feed actually serves. Nothing here is hand-maintained per release.
+The feed is the single source of truth for what each release IS. Every download card, version
+string, size and checksum on the generated pages comes from manifest.json, and the download
+buttons interpolate the feed's version into the per-kind URL templates in KINDS, so a release
+reaches the site by updating the feed alone.
+
+What stays hand-maintained here is the SHAPE of things rather than the contents of any release.
+The URL templates encode each repo's asset naming convention, and they change only if that
+convention changes, not once per version.
 
     python tools/generate_site.py            # fetch the live feed, write site/
     python tools/generate_site.py --check    # regenerate and fail if site/ is stale
@@ -41,7 +46,7 @@ KINDS = [
         "acquire": "download",
         "platform": "Windows 10 or later, x64",
         "source": ("View the source", "https://github.com/Febris-XR/Febris_PC"),
-        "direct": ("Download the installer (.msi)", "https://github.com/Febris-XR/Febris_PC/releases/download/v0.2.0/FebrisPCSuite-0.2.0-win-x64.msi"),
+        "direct": ("Download the installer (.msi)", "https://github.com/Febris-XR/Febris_PC/releases/download/v{version}/FebrisPCSuite-{version}-win-x64.msi"),
     },
     {
         "id": 200, "slug": "mobile-server", "key": "AndroidMobileServer", "name": "Mobile Server",
@@ -50,7 +55,7 @@ KINDS = [
         "acquire": "download",
         "platform": "Android 10 or later, sideloaded",
         "source": ("View the source", "https://github.com/Febris-XR/Febris_MobileSuite"),
-        "direct": ("Download the APK", "https://github.com/Febris-XR/Febris_MobileSuite/releases/download/v0.2.0/febris-mobile-server-v0.2.0.apk"),
+        "direct": ("Download the APK", "https://github.com/Febris-XR/Febris_MobileSuite/releases/download/v{version}/febris-mobile-server-v{version}.apk"),
     },
     {
         "id": 300, "slug": "mobile-companion", "key": "AndroidMobileCompanion", "name": "Mobile Companion",
@@ -59,7 +64,7 @@ KINDS = [
         "acquire": "via-server",
         "platform": "Android 8 or later, installed onto the headset",
         "source": ("View the source", "https://github.com/Febris-XR/Febris_MobileSuite"),
-        "direct": ("Download the APK", "https://github.com/Febris-XR/Febris_MobileSuite/releases/download/v0.2.0/febris-mobile-companion-v0.2.0.apk"),
+        "direct": ("Download the APK", "https://github.com/Febris-XR/Febris_MobileSuite/releases/download/v{version}/febris-mobile-companion-v{version}.apk"),
     },
     {
         "id": 400, "slug": "sdk-csharp", "key": "CSharp", "name": "Simulation SDK for C#",
@@ -328,12 +333,27 @@ def card_for(kind, entry):
     version = entry.get("version", "")
     pill = '<span class="pill pill-live">Version %s</span>' % esc(version)
 
+    # The download button. A kind's "direct" URL is a TEMPLATE carrying {version}, substituted here
+    # from the feed row, so a release reaches the button by updating the feed alone.
+    #
+    # It was previously a literal pinned to a version, which meant the pill, filename, size and
+    # checksum all tracked the feed while the button kept serving the previous release. The page
+    # then displayed a checksum that did not match the file it handed you.
+    #
+    # The template stays per-kind rather than being derived from art["url"] because the naming
+    # conventions genuinely differ. The mobile artifacts swap .zip for .apk, but the PC feed zip is
+    # febris-pc-suite-vX.Y.Z.zip while its installer is FebrisPCSuite-X.Y.Z-win-x64.msi, so no single
+    # rule produces both. A kind with no "direct" template falls back to the feed artifact itself.
+    if kind.get("direct"):
+        primary = (kind["direct"][0], kind["direct"][1].replace("{version}", version))
+    else:
+        primary = ("Download", art["url"])
+
     if kind["acquire"] == "via-server":
         # The Companion is normally delivered BY the Mobile Server, and that stays the primary
         # route because it is what scales past a handful of headsets. But a published APK is
         # still worth offering directly: it is how you sideload the first headset, or recover
         # one that cannot reach a server. Show both rather than hiding the download.
-        primary = kind.get("direct") or ("Download", art["url"])
         bits = ['<a class="btn btn-primary" href="%s">%s</a>' % (esc(primary[1]), esc(primary[0]))]
         if kind.get("source"):
             slabel, shref = kind["source"]
@@ -343,7 +363,6 @@ def card_for(kind, entry):
         # The feed artifact is a .zip because that is what a node ingests. A person wants the
         # installer or the APK, so offer the direct asset when the kind names one and fall back
         # to the feed artifact otherwise.
-        primary = kind.get("direct") or ("Download", art["url"])
         bits = ['<a class="btn btn-primary" href="%s">%s</a>' % (esc(primary[1]), esc(primary[0]))]
         if kind.get("home"):
             label, href = kind["home"]
@@ -356,11 +375,28 @@ def card_for(kind, entry):
             action += "<p class=\"plat\" style=\"margin:0.9rem 0 0\">%s</p><pre>%s</pre>" % (
                 esc(label), esc(cmd.replace("{version}", version)))
 
-    meta = ('<div class="meta">'
-            '<div><span>File</span><span class="hash">%s</span></div>'
-            '<div><span>Size</span><span>%s</span></div>'
-            '<div><span>SHA-256</span><span class="hash">%s</span></div>'
-            '</div>') % (esc(art["fileName"]), esc(human_bytes(art["sizeBytes"])), esc(art["sha256"]))
+    # This block must describe the file the DOWNLOAD button actually serves. For a kind with a
+    # "direct" link that is the installer or the APK, whose size and digest the feed records in
+    # contains[0], NOT the node zip in artifact.
+    #
+    # It used to render artifact unconditionally, so the PC card offered FebrisPCSuite-0.2.0-win-x64.msi
+    # under the filename, size and SHA-256 of febris-pc-suite-v0.2.0.zip. A visitor who ran the
+    # checksum the page invites got a mismatch on a perfectly good download, which teaches people
+    # that the check is noise and is worse than showing no checksum at all.
+    #
+    # Size is optional in contains, so the row is dropped rather than guessed when it is absent.
+    shown_name, shown_size, shown_hash = art["fileName"], art.get("sizeBytes"), art["sha256"]
+    inner = (entry.get("contains") or [{}])[0]
+    if kind.get("direct") and inner.get("sha256"):
+        shown_name = primary[1].rsplit("/", 1)[-1]
+        shown_size = inner.get("sizeBytes")
+        shown_hash = inner["sha256"]
+
+    rows = ['<div><span>File</span><span class="hash">%s</span></div>' % esc(shown_name)]
+    if shown_size:
+        rows.append('<div><span>Size</span><span>%s</span></div>' % esc(human_bytes(shown_size)))
+    rows.append('<div><span>SHA-256</span><span class="hash">%s</span></div>' % esc(shown_hash))
+    meta = '<div class="meta">%s</div>' % "".join(rows)
 
     return '<div class="card" id="%s">%s %s %s %s %s</div>' % (kind["slug"], pill, head, desc, action, meta)
 
