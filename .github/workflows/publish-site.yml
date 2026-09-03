@@ -1,13 +1,27 @@
 # Build the landing site from the client-dist feed and publish it to GitHub Pages.
 #
-# The feed is the single source of truth. tools/generate_site.py reads manifest.json from
-# Febris_ClientDist and renders site/, so a published version, size or checksum can never
-# drift from what the feed actually serves.
+# The feed in Febris_ClientDist is the single source of truth. tools/generate_site.py renders
+# site/ from it, so a published version, size or checksum can never drift from what the feed
+# actually serves.
 #
 # site/ IS COMMITTED, and the pull_request job fails when it is stale. That is the same
 # discipline docs/STATUS.md uses in the node repo: generated output is reviewable in the
 # diff rather than appearing only inside a runner. On main, the scheduled run regenerates
 # and commits any drift itself, so a feed release reaches the site without a human.
+#
+# == WHY feed.snapshot.json EXISTS ================================================================
+#
+# site/ is generated output committed to the repo, so a check that it is current is only
+# meaningful against a FIXED input. The PR job used to regenerate from the LIVE feed, which meant
+# every open pull request turned red the moment a release moved the feed, for reasons having
+# nothing to do with its own diff. A required check that fails for unrelated reasons is one
+# reviewers learn to ignore.
+#
+# So the feed is pinned. feed.snapshot.json is the exact feed site/ was built from, committed
+# beside it. The PR job regenerates from that snapshot and needs no network at all, so it is
+# deterministic and only fails when the PR itself makes site/ stale. The build job on main is
+# what refreshes the snapshot from the live feed, and it commits the snapshot and site/ together
+# so the two can never disagree.
 #
 # Pages must be enabled with Source set to GitHub Actions before the deploy step can work.
 name: publish-site
@@ -18,10 +32,13 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    # Daily. The feed changes only on a release, so this is a safety net rather than the
-    # primary path. A repository_dispatch from Febris_ClientDist is the fast path.
+    # Daily. The feed changes only on a release, so this is the safety net.
     - cron: "17 6 * * *"
   repository_dispatch:
+    # The fast path. Febris_ClientDist sends this when manifest.json lands on its main, which
+    # needs a token there with write access to THIS repo, because a workflow's own GITHUB_TOKEN
+    # cannot dispatch across repositories. If that secret is absent the sender says so and this
+    # trigger simply never fires, leaving the daily cron and workflow_dispatch to cover it.
     types: [feed-updated]
   workflow_dispatch:
 
@@ -39,8 +56,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: The committed site must match the live feed
-        run: python3 tools/generate_site.py --check
+      # Deliberately built from the COMMITTED snapshot, not the live feed. This check must depend
+      # only on what the pull request contains, or a release elsewhere turns it red.
+      - name: The committed site must match the committed feed snapshot
+        run: python3 tools/generate_site.py --check --manifest feed.snapshot.json
 
   build:
     if: github.event_name != 'pull_request'
@@ -50,20 +69,31 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Regenerate the site from the feed
-        run: python3 tools/generate_site.py
+      # This job, and only this job, is allowed to reach the live feed. Refreshing the snapshot
+      # here is what lets every other consumer of it stay hermetic.
+      - name: Refresh the feed snapshot from the live feed
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 3 --retry-delay 5 \
+            https://raw.githubusercontent.com/Febris-XR/Febris_ClientDist/main/manifest.json \
+            -o feed.snapshot.json
+          python3 -c "import json;d=json.load(open('feed.snapshot.json'));print('feed carries %d package(s), generated %s' % (len(d['packages']), d['generated']))"
 
-      # Commit drift back so the repository always shows what is deployed. Nothing to do on
-      # the common path where the feed has not moved.
+      - name: Regenerate the site from the snapshot
+        run: python3 tools/generate_site.py --manifest feed.snapshot.json
+
+      # Commit drift back so the repository always shows what is deployed. The snapshot and site/
+      # go in the SAME commit, because a snapshot that disagrees with the site it produced would
+      # make the pull request check either wrongly red or wrongly green.
       - name: Commit the regenerated site if the feed moved
         run: |
-          if git diff --quiet -- site/; then
+          if git diff --quiet -- site/ feed.snapshot.json; then
             echo "no change: the site already matches the feed"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add site/
+          git add site/ feed.snapshot.json
           git commit -m "Regenerate the site from the distribution feed"
           git push
 
