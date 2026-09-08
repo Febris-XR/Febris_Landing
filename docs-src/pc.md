@@ -9,7 +9,7 @@ status: published
 
 ### Background
 
-This is documentation on how to use the Febris PC Launcher. You get the PC package from the downloads section of this site, or from the Software Repository page of the node you connect to, which links to the same place. It is not published yet, and the downloads section says so plainly until it is.
+This is documentation on how to use the Febris PC Launcher. You get the PC package from the downloads section of this site, or from the Software Repository page of the node you connect to, which links to the same place. It is published, at v0.2.0, as an `.msi` installer and a `.zip` of the same build.
 
 **Not every aspect of the Febris PC Launcher is optimal. The PC software does not currently have a signing certificate. This will change in future releases.**
 

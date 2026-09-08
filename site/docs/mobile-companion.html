@@ -176,7 +176,7 @@ pre.code { background: var(--panel); border: 1px solid var(--line); border-radiu
   
   <h2 id="mobile-companion">Mobile Companion</h2>
 <p>The Companion runs on the headset. It receives statements from the simulation running beside it, holds them on the device, and hands them to your Mobile Server over a direct peer link. It is the last hop before a learning record leaves the headset.</p>
-<p>You do not install it by hand, and there is no download button for it anywhere. That is deliberate, and it is the main thing to understand about this component.</p>
+<p>You normally do not install it by hand. It arrives from the Mobile Server, and that is the main thing to understand about this component. An <code>.apk</code> is published on the release page for the cases where you need one, and the downloads section links to it, but reaching for it by hand is not the route this component is designed around.</p>
 <h3 id="how-it-gets-onto-a-headset">How it gets onto a headset</h3>
 <p>The Mobile Server installs it. The sequence is:</p>
 <ol><li>Your node holds a copy of the Companion package in its software catalogue.</li><li>The Mobile Server asks the node whether a newer version exists, calling</li></ol>

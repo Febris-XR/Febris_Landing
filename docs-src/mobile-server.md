@@ -10,7 +10,7 @@ note: This guide is text-only. The screenshots were removed because the pairing 
 
 ### Background
 
-This is documentation on how to use the Febris Mobile Server. You get it from the downloads section of this site, or from the Software Repository page of the node you connect to, which links to the same place. It is not published yet, and the downloads section says so plainly until it is.
+This is documentation on how to use the Febris Mobile Server. You get it from the downloads section of this site, or from the Software Repository page of the node you connect to, which links to the same place. It is published, at v0.2.0, as an `.apk` you sideload and a `.zip` a node ingests.
 
 **Not every aspect of the Febris mobile server is currently online. This will change in future releases.**
 
