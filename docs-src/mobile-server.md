@@ -1,7 +1,7 @@
 ---
 title: Mobile Server
 anchor: docs-mobile-server
-summary: Registering the server, pairing headsets over Bluetooth, and adding or removing devices.
+summary: Registering the server, pairing headsets over WiFi Direct, and adding or removing devices.
 status: published
 note: This guide is text-only. The screenshots were removed because the pairing screen has changed since they were taken. The steps below were rewritten against the current source, including the Pair stage the earlier version omitted, but have not been walked through on a device.
 ---
@@ -10,7 +10,7 @@ note: This guide is text-only. The screenshots were removed because the pairing 
 
 ### Background
 
-This is documentation on how to use the Febris Mobile Server. You get it from the downloads section of this site, or from the Software Repository page of the node you connect to, which links to the same place. It is not published yet, and the downloads section says so plainly until it is.
+This is documentation on how to use the Febris Mobile Server. You get it from the downloads section of this site, or from the Software Repository page of the node you connect to, which links to the same place. It is published, at v0.2.0, as an `.apk` you sideload and a `.zip` a node ingests.
 
 **Not every aspect of the Febris mobile server is currently online. This will change in future releases.**
 
@@ -45,20 +45,23 @@ If the Hardware License field is empty, this device has not been registered yet,
 
 The developer option is an opt-in that points this client at a different node, supplied through the FEBRIS_DEVELOPER_API_URL environment variable. It ships with no address configured and there is no Febris operated account behind it, so leaving it off is correct unless you have been given an address to use.
 
-If you are not a developer then the proper URL needs to be set up. Your IT administrator will have set up a private URL for your Febris operations. The URL can vary from a prefix, path, or port. If you do not know what these are please ask your IT Administrator. If the category does not exist, leave the section blank.
+If you are not a developer then the proper URL needs to be set up. Your IT administrator will have set up a private URL for your Febris operations. Domain Prefix, Domain and Domain Port vary by deployment, so ask your IT Administrator if you do not know them, and leave any of those three blank if they do not apply. Domain Path is the exception. It must be `api`, because that segment is fixed by the node's API rather than chosen per deployment, so blanking it stops the client reaching the node at all.
 
 Pressing update settings saves your new configuration.
 
 ### Adding a headset
 
-Register one headset at a time. The flow has three stages: discover the device, pair with it,
-then install the Companion onto it.
+Register one headset at a time. The flow has two stages. Pair with the headset, then install the
+Companion onto it.
 
-**1. Discover.** Open **Configuration**, then **Pair New Device**, then press **Scan**. The
-server searches over Bluetooth for Companions nearby.
+**1. Get the headset in front of the server.** Start the Companion on the headset and leave it
+running. It joins the Mobile Server's WiFi Direct group on its own, and that is what puts it in
+front of the server. There is no Scan button and no Bluetooth discovery. On the first headset,
+where no Companion is installed yet, do the install in stage 2 first and come back here.
 
-**2. Pair.** Press **Pair** to open the pairing list. It shows devices that are *connected but
-not yet paired*: a Companion appears here as soon as it joins the WiFi Direct group, which
+Then open **Configuration**, press **Pair New Device**, and press **Pair** to open the pairing
+list. It shows devices that are *connected but not yet paired*. A Companion appears there as soon
+as it joins the WiFi Direct group, which
 happens before any pairing exists, so seeing it listed does not mean it is paired.
 
 Pairing then shows a **six digit code on both devices**. Confirm the codes match before
@@ -67,19 +70,18 @@ the headset rather than on this screen.
 
 Once paired, the device is added to your device list.
 
-**3. Install the Companion.** Two routes.
-
-*Over Bluetooth:* press the upload button to the right of the device in the list and tell the
-tablet to send the file. You then have to open the transferred `.apk` on the headset yourself
-to install it.
-
-*Over USB OTG:* put both devices in developer mode first. Connect the OTG cable from the
-machine running the Mobile Server to the headset. Approve every trust prompt that appears.
-**Push and Install** and **Install** then become available at the top of the pairing page.
+**2. Install the Companion.** There is one route and it needs a cable. Put both devices in
+developer mode first. Connect the OTG cable from the machine running the Mobile Server to the
+headset. Approve every trust prompt that appears. **Push and Install** and **Install** then
+become available at the top of the pairing page.
 
 Press **Push and Install** first. It uploads the Companion's apk variants and installs them.
-If the push fails partway through, try **Install** on its own before repeating the push: the
+If the push fails partway through, try **Install** on its own before repeating the push. The
 file it needs is probably already on the headset, and pushing again is usually wasted time.
+
+There used to be a second route over Bluetooth, using an upload button beside each device in the
+list. That button was removed on 2026-09-01. It pushed a file to a device's Bluetooth address,
+and the Companion has no Bluetooth receive path, so nothing arrived.
 
 ### Removing a headset
 

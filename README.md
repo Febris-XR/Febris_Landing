@@ -22,16 +22,17 @@ by `tools/render_docs.py`, which implements the small subset of markdown this si
 has no third-party dependency.
 
 `site/` is committed rather than built only inside a runner, so what is deployed is reviewable
-in the diff. The workflow enforces that: a pull request fails if the committed site no longer
-matches the live feed, and on `main` the scheduled run regenerates and commits any drift itself.
-This mirrors how `docs/STATUS.md` is handled in the node repository.
+in the diff. The workflow enforces that. A pull request rebuilds the site from the committed
+`feed.snapshot.json` and fails if `site/` no longer matches, so the check turns on the pull
+request's own contents rather than on a release landing elsewhere. On `main`, the build job
+refreshes that snapshot from the live feed and commits the snapshot and `site/` together.
 
 ## Working on it
 
 ```bash
-python tools/generate_site.py            # fetch the live feed and rebuild site/
-python tools/generate_site.py --check    # fail if site/ is stale, what CI runs
-python tools/generate_site.py --manifest local.json   # build from a local manifest
+python tools/generate_site.py --manifest feed.snapshot.json          # rebuild from the pinned feed
+python tools/generate_site.py --check --manifest feed.snapshot.json  # what CI runs on a pull request
+python tools/generate_site.py                                        # rebuild from the LIVE feed
 ```
 
 Standard library only. No build toolchain, no dependencies, no package manager.
@@ -99,9 +100,10 @@ Mobile Companion, and the two simulation SDKs. Kinds the feed does not yet carry
 honest "not yet published" state rather than being hidden, so the page never implies the
 catalogue is complete when it is not.
 
-The Mobile Companion is a deliberate exception. It is never a browser download, because it is
-delivered to the headset by the Mobile Server over a direct peer link, and the card says so in
-every state.
+The Mobile Companion is a deliberate exception. Its normal route is not a browser download,
+because the Mobile Server delivers it to the headset over a direct peer link, and the card says
+so in every state. The published APK is offered directly as well, for sideloading the first
+headset or recovering one that cannot reach a Server.
 
 ## Publishing
 

@@ -97,12 +97,13 @@ the session progresses, then end it.
 //    function changes shape, which is a MAJOR event. New functions do not bump it.
 if (FebrisSimAbiVersion() != FEBRISSIM_ABI_VERSION) { /* refuse to run */ }
 
-// 2. Initialise. febrisData is the launch payload; on Windows it arrives on the command line.
-//    ready receives 1 when the platform handler accepted and persisted the first statement.
+// 2. Initialise ONCE. febrisData is the launch payload, and on Windows it arrives on the
+//    command line. ready receives 1 when the platform handler accepted and persisted the
+//    first statement. There is no sizing-only call: every invocation runs the full
+//    initialisation, and on Windows each one mints a fresh reference UUID and writes another
+//    handoff file, so calling it twice to size a buffer corrupts the session.
 int32_t ready = 0;
-int32_t extrasNeeded = FebrisSimInitialize(febrisData, FebrisSimOs_WindowsPC, &ready, nullptr, 0);
-std::vector<char> extras(extrasNeeded > 0 ? extrasNeeded : 1);
-FebrisSimInitialize(febrisData, FebrisSimOs_WindowsPC, &ready, extras.data(), extrasNeeded);
+FebrisSimInitialize(febrisData, FebrisSimOs_WindowsPC, &ready, nullptr, 0);
 
 // On Windows the extras object is the string "null": the handler writes to the file system
 // instead. On Android it carries the intent extras you broadcast onward.
@@ -110,9 +111,11 @@ FebrisSimInitialize(febrisData, FebrisSimOs_WindowsPC, &ready, extras.data(), ex
 // 3. During the session, keep the duration current.
 FebrisSimDurationUpdateMs(elapsedMilliseconds);
 
-// 4. End it, reporting completion and pass state with a scaled score.
+// 4. End it, reporting pass state, completion and the RAW score. The library derives
+//    result.score.scaled itself, so set the maximum first with
+//    FebrisSimUpdateResultFloat(FebrisSimResult_ScoreMax, maxScore).
 int32_t endReady = 0;
-FebrisSimEndSimulationWith(/* completed */ 1, /* passed */ 1, scaledScore, durationMs,
+FebrisSimEndSimulationWith(/* success */ 1, /* complete */ 1, rawScore, durationMs,
                            &endReady, nullptr, 0);
 ```
 
@@ -133,10 +136,27 @@ host broadcasts them to the Companion.
 
 Every enum in the header carries the integer values from the C# API verbatim, so the two SDKs
 agree on the wire and you can cross-reference the C# documentation without a translation table.
+The C names are prefixed, because C has no enum scoping, so the C# `WindowsPC` is
+`FebrisSimOs_WindowsPC` here.
 
 ```cpp
-enum FebrisSimOs { WindowsPC = 0, Android = 1, iOSvariant = 2, WinMobile = 3 };
-enum FebrisSimLogLevel { Debug = 0, Info = 1, Warn = 2, Error = 3 };
+/* Enums.ExpectedOperatingSystem */
+enum FebrisSimOs
+{
+	FebrisSimOs_WindowsPC  = 0,
+	FebrisSimOs_Android    = 1,
+	FebrisSimOs_iOSvariant = 2,
+	FebrisSimOs_WinMobile  = 3
+};
+
+/* Service.SimulationLogLevel */
+enum FebrisSimLogLevel
+{
+	FebrisSimLog_Debug = 0,
+	FebrisSimLog_Info  = 1,
+	FebrisSimLog_Warn  = 2,
+	FebrisSimLog_Error = 3
+};
 ```
 
 ### Versioning

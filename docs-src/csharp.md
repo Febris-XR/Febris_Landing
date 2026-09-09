@@ -88,7 +88,7 @@ public class testScript : MonoBehaviour
             {
                 AndroidJavaClass UnityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
                 AndroidJavaObject currentActivity = UnityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-                AndroidJavaObject inputIntent = currentActivity.Call<AndroidJavaObject>(AndroidIntentConst.GetIntentTag);
+                AndroidJavaObject inputIntent = currentActivity.Call<AndroidJavaObject>(AndroidIntentConst.GetIntentTag); // corrected: the original declared inputIntent then called it intent
                 bool hasExtra = inputIntent.Call<bool>(AndroidIntentConst.HasExtrasTag, AndroidIntentConst.ArgumentExtraTag);
                 if (!hasExtra) {
                     UnityEngine.Debug.Log("*********************Intent has no extras******************************");

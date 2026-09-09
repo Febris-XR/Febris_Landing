@@ -9,7 +9,7 @@ status: published
 
 ### Background
 
-This is documentation on how to use the Febris PC Launcher. You get the PC package from the downloads section of this site, or from the Software Repository page of the node you connect to, which links to the same place. It is not published yet, and the downloads section says so plainly until it is.
+This is documentation on how to use the Febris PC Launcher. You get the PC package from the downloads section of this site, or from the Software Repository page of the node you connect to, which links to the same place. It is published, at v0.2.0, as an `.msi` installer and a `.zip` of the same build.
 
 **Not every aspect of the Febris PC Launcher is optimal. The PC software does not currently have a signing certificate. This will change in future releases.**
 
@@ -19,6 +19,8 @@ Needed Items:
 
 1. VR ready PC running Windows 10 (Windows 11 may work but is untested)
 2. Compatible headset and accompanying hardware
+3. The .NET 8 Desktop Runtime (x64). The applications are framework-dependent and the installer
+   does not bundle it, so they will not start until it is installed.
 
 ### Registering a device
 
@@ -39,4 +41,4 @@ If the Hardware License field is empty, this PC has not been registered yet, and
 
 The developer option is an opt-in that points this client at a different node, supplied through the FEBRIS_DEVELOPER_API_URL environment variable. It ships with no address configured and there is no Febris operated account behind it, so leaving it off is correct unless you have been given an address to use.
 
-If you are not a developer then the proper URL needs to be set up. Your IT administrator will have set up a private URL for your Febris operations. The URL can vary from a prefix, path, or port. If you do not know what these are please ask your IT Administrator. If the category does not exist, leave the section blank.
+If you are not a developer then the proper URL needs to be set up. Your IT administrator will have set up a private URL for your Febris operations. Domain Prefix, Domain and Domain Port vary by deployment, so ask your IT Administrator if you do not know them, and leave any of those three blank if they do not apply. Domain Path is the exception. It must be `api`, because that segment is fixed by the node's API rather than chosen per deployment, so blanking it stops the client reaching the node at all.

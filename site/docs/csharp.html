@@ -230,7 +230,7 @@ pre.code { background: var(--panel); border: 1px solid var(--line); border-radiu
             {
                 AndroidJavaClass UnityPlayer = new AndroidJavaClass(&quot;com.unity3d.player.UnityPlayer&quot;);
                 AndroidJavaObject currentActivity = UnityPlayer.GetStatic&lt;AndroidJavaObject&gt;(&quot;currentActivity&quot;);
-                AndroidJavaObject inputIntent = currentActivity.Call&lt;AndroidJavaObject&gt;(AndroidIntentConst.GetIntentTag);
+                AndroidJavaObject inputIntent = currentActivity.Call&lt;AndroidJavaObject&gt;(AndroidIntentConst.GetIntentTag); // corrected: the original declared inputIntent then called it intent
                 bool hasExtra = inputIntent.Call&lt;bool&gt;(AndroidIntentConst.HasExtrasTag, AndroidIntentConst.ArgumentExtraTag);
                 if (!hasExtra) {
                     UnityEngine.Debug.Log(&quot;*********************Intent has no extras******************************&quot;);

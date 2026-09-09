@@ -220,12 +220,13 @@ bool GetReferenceUuid(std::string&amp; out)
 //    function changes shape, which is a MAJOR event. New functions do not bump it.
 if (FebrisSimAbiVersion() != FEBRISSIM_ABI_VERSION) { /* refuse to run */ }
 
-// 2. Initialise. febrisData is the launch payload; on Windows it arrives on the command line.
-//    ready receives 1 when the platform handler accepted and persisted the first statement.
+// 2. Initialise ONCE. febrisData is the launch payload, and on Windows it arrives on the
+//    command line. ready receives 1 when the platform handler accepted and persisted the
+//    first statement. There is no sizing-only call: every invocation runs the full
+//    initialisation, and on Windows each one mints a fresh reference UUID and writes another
+//    handoff file, so calling it twice to size a buffer corrupts the session.
 int32_t ready = 0;
-int32_t extrasNeeded = FebrisSimInitialize(febrisData, FebrisSimOs_WindowsPC, &amp;ready, nullptr, 0);
-std::vector&lt;char&gt; extras(extrasNeeded &gt; 0 ? extrasNeeded : 1);
-FebrisSimInitialize(febrisData, FebrisSimOs_WindowsPC, &amp;ready, extras.data(), extrasNeeded);
+FebrisSimInitialize(febrisData, FebrisSimOs_WindowsPC, &amp;ready, nullptr, 0);
 
 // On Windows the extras object is the string &quot;null&quot;: the handler writes to the file system
 // instead. On Android it carries the intent extras you broadcast onward.
@@ -233,18 +234,35 @@ FebrisSimInitialize(febrisData, FebrisSimOs_WindowsPC, &amp;ready, extras.data()
 // 3. During the session, keep the duration current.
 FebrisSimDurationUpdateMs(elapsedMilliseconds);
 
-// 4. End it, reporting completion and pass state with a scaled score.
+// 4. End it, reporting pass state, completion and the RAW score. The library derives
+//    result.score.scaled itself, so set the maximum first with
+//    FebrisSimUpdateResultFloat(FebrisSimResult_ScoreMax, maxScore).
 int32_t endReady = 0;
-FebrisSimEndSimulationWith(/* completed */ 1, /* passed */ 1, scaledScore, durationMs,
+FebrisSimEndSimulationWith(/* success */ 1, /* complete */ 1, rawScore, durationMs,
                            &amp;endReady, nullptr, 0);</code></pre>
 <h3 id="where-the-statement-goes">Where the statement goes</h3>
 <p>The SDK does not talk to a node or to any LRS. It authors the statement and hands it to the platform handler.</p>
 <p>On Windows the handler writes a <code>{uuid}.json</code> file into your Documents folder, under <code>Febris\statements\statements</code>. Something else moves it from there to a node, which is the PC Statement Manager&#x27;s job. If you are embedding the SDK in your own host, that hand-off is yours to arrange, and <code>FebrisSimSetBasePath</code> lets you redirect the whole tree somewhere you control.</p>
 <p>On Android nothing is written to disk. The SDK returns the statement as intent extras and your host broadcasts them to the Companion.</p>
 <h3 id="enum-values-are-the-c-values">Enum values are the C# values</h3>
-<p>Every enum in the header carries the integer values from the C# API verbatim, so the two SDKs agree on the wire and you can cross-reference the C# documentation without a translation table.</p>
-<pre class="code" data-lang="cpp"><code>enum FebrisSimOs { WindowsPC = 0, Android = 1, iOSvariant = 2, WinMobile = 3 };
-enum FebrisSimLogLevel { Debug = 0, Info = 1, Warn = 2, Error = 3 };</code></pre>
+<p>Every enum in the header carries the integer values from the C# API verbatim, so the two SDKs agree on the wire and you can cross-reference the C# documentation without a translation table. The C names are prefixed, because C has no enum scoping, so the C# <code>WindowsPC</code> is <code>FebrisSimOs_WindowsPC</code> here.</p>
+<pre class="code" data-lang="cpp"><code>/* Enums.ExpectedOperatingSystem */
+enum FebrisSimOs
+{
+	FebrisSimOs_WindowsPC  = 0,
+	FebrisSimOs_Android    = 1,
+	FebrisSimOs_iOSvariant = 2,
+	FebrisSimOs_WinMobile  = 3
+};
+
+/* Service.SimulationLogLevel */
+enum FebrisSimLogLevel
+{
+	FebrisSimLog_Debug = 0,
+	FebrisSimLog_Info  = 1,
+	FebrisSimLog_Warn  = 2,
+	FebrisSimLog_Error = 3
+};</code></pre>
 <h3 id="versioning">Versioning</h3>
 <p>The ABI evolves <strong>additively</strong> within a MINOR version: new functions may appear, existing signatures never change shape. <code>FEBRISSIM_ABI_VERSION</code> is bumped only when an existing function changes meaning, which is a MAJOR event. Checking it at startup, as above, is cheap insurance.</p>
 </div></article>
