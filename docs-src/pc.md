@@ -19,6 +19,8 @@ Needed Items:
 
 1. VR ready PC running Windows 10 (Windows 11 may work but is untested)
 2. Compatible headset and accompanying hardware
+3. The .NET 8 Desktop Runtime (x64). The applications are framework-dependent and the installer
+   does not bundle it, so they will not start until it is installed.
 
 ### Registering a device
 

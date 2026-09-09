@@ -26,8 +26,9 @@ The Mobile Server installs it. The sequence is:
 3. If the node has one, the Server downloads it from `api/CompanionApp/download/{uuid}`.
 4. The Server pushes and installs it onto the connected headset over USB.
 
-Every step after the first is automatic once the Server is paired with the headset and
-pointed at your node.
+Steps 2 and 3 are automatic once the Server is pointed at your node. Step 4 is not. It needs the
+headset on a USB OTG cable in developer mode, with the trust prompts approved, and a press of
+**Push and Install** on the Server's pairing page.
 
 The consequence worth planning around: **the headset can only be updated if your node holds
 the package.** A copy sitting on someone's laptop is no use, because the Server asks the node,

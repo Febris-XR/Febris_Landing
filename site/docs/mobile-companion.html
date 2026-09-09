@@ -182,7 +182,7 @@ pre.code { background: var(--panel); border: 1px solid var(--line); border-radiu
 <ol><li>Your node holds a copy of the Companion package in its software catalogue.</li><li>The Mobile Server asks the node whether a newer version exists, calling</li></ol>
 <p><code>api/CompanionApp/getlatestversion</code> with its device token.</p>
 <ol><li>If the node has one, the Server downloads it from <code>api/CompanionApp/download/{uuid}</code>.</li><li>The Server pushes and installs it onto the connected headset over USB.</li></ol>
-<p>Every step after the first is automatic once the Server is paired with the headset and pointed at your node.</p>
+<p>Steps 2 and 3 are automatic once the Server is pointed at your node. Step 4 is not. It needs the headset on a USB OTG cable in developer mode, with the trust prompts approved, and a press of <strong>Push and Install</strong> on the Server&#x27;s pairing page.</p>
 <p>The consequence worth planning around: <strong>the headset can only be updated if your node holds the package.</strong> A copy sitting on someone&#x27;s laptop is no use, because the Server asks the node, not a person. If the Companion is missing from your node&#x27;s catalogue there is nothing for the Server to fetch and headsets stay on whatever version they already have.</p>
 <h3 id="what-it-does-during-a-session">What it does during a session</h3>
 <p>The simulation does not write statement files on Android the way it does on Windows. Instead the SDK hands the statement to the host as intent extras, and the host broadcasts them. The Companion listens for three actions:</p>

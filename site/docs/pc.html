@@ -180,7 +180,8 @@ pre.code { background: var(--panel); border: 1px solid var(--line); border-radiu
 <p><strong>Not every aspect of the Febris PC Launcher is optimal. The PC software does not currently have a signing certificate. This will change in future releases.</strong></p>
 <h3 id="requirements">Requirements</h3>
 <p>Needed Items:</p>
-<ol><li>VR ready PC running Windows 10 (Windows 11 may work but is untested)</li><li>Compatible headset and accompanying hardware</li></ol>
+<ol><li>VR ready PC running Windows 10 (Windows 11 may work but is untested)</li><li>Compatible headset and accompanying hardware</li><li>The .NET 8 Desktop Runtime (x64). The applications are framework-dependent and the installer</li></ol>
+<p>does not bundle it, so they will not start until it is installed.</p>
 <h3 id="registering-a-device">Registering a device</h3>
 <p>Registration is what lets your node send modules to this PC and collect training data back from it. It runs in one direction: <strong>your node creates the credential, and you carry it to the PC.</strong> Nothing is read off the PC first.</p>
 <ol><li>On your node&#x27;s portal, open <strong>Hardware</strong> and create the device.</li><li>The node generates a credential and <strong>displays it once</strong>. Copy it before leaving the page. It is stored only as a fingerprint, so nobody can look it up later, not even an administrator. If it is lost, use <strong>Regenerate</strong> on the Hardware list to issue a new one; the old credential stops working immediately and the device will not connect again until the new value is entered on it.</li><li>On the PC, open the launcher&#x27;s configuration page and paste the credential into <strong>Hardware License</strong>.</li><li>Press <strong>Save Settings</strong>. The launcher keeps the credential encrypted on that machine and uses it from then on.</li></ol>

@@ -557,7 +557,7 @@ def build_index(manifest, docs):
   <h1>XR and simulation training, on infrastructure you own.</h1>
   <p class="lede">Febris delivers training to headsets and desktops, and records what actually
   happened during the session as xAPI. One node owns everything it needs: identity and accounts,
-  cohorts, curricula and modules, a statement store, usage analytics, and the artifact store that
+  cohorts, hardware and modules, a statement store, usage analytics, and the artifact store that
   distributes the client software to devices. There is no Febris account, no licence key, and no
   service the maintainer operates.</p>
   <div class="cta">
@@ -574,7 +574,7 @@ def build_index(manifest, docs):
   <div class="flow">
     <div>
       <h3>The node</h3>
-      <p>An ASP.NET Core server you host. It holds your accounts and curricula, ingests xAPI
+      <p>An ASP.NET Core server you host. It holds your accounts, cohorts and modules, ingests xAPI
       statements from devices, and hands out the client software those devices run.</p>
     </div>
     <div>
@@ -599,10 +599,9 @@ def build_index(manifest, docs):
     <dd>A dedicated xAPI store with its own database, statements deduplicated on the identifier
     their producer assigned, and the raw submission preserved alongside the parsed form.</dd>
 
-    <dt>Cohorts, curricula and modules</dt>
-    <dd>Organise learners, group them, assign curricula, and version the module archives that
-    devices pull down.</dd>
-
+    <dt>Cohorts, hardware and modules</dt>
+    <dd>Organise learners, group them into cohorts, entitle a cohort's hardware to what it may
+    run, and version the module archives that devices pull down.</dd>
     <dt>Client distribution built in</dt>
     <dd>The node is the artifact store. Devices ask it for the current build and it serves the
     bytes, checksum recorded, so a headset updates without anyone visiting a website.</dd>
@@ -626,7 +625,7 @@ def build_index(manifest, docs):
   <p class="sub">A Docker Compose stack: Postgres 16, Valkey 8, the API, the portal, and a Caddy
   reverse proxy that issues its own certificate for local use.</p>
   <pre>git clone https://github.com/Febris-XR/Febris_Node.git febris-node &amp;&amp; cd febris-node
-./selfhost/generate-env.sh
+bash selfhost/generate-env.sh
 docker compose up -d --build</pre>
   <p class="sub" style="margin-top:1.25rem">The generated environment file prints your first
   login. Everything else, including backups, upgrades, TLS and going to production, is in
@@ -648,15 +647,17 @@ docker compose up -d --build</pre>
       <h3>PC</h3>
       <p>The PC suite runs the simulation on a Windows machine. You install it once, register
       that PC on your node's Hardware page, and paste in the credential the node issues. From
-      then on the Launcher pulls the modules the learner is assigned, starts the session, and the
+      then on the Launcher pulls the modules your node has assigned to that PC, starts the
+      session for the learner you pick, and the
       Statement Manager sends the resulting xAPI records back to your node on its own.</p>
       <p class="tiny"><a href="docs/pc.html">Read the PC guide</a></p>
     </div>
     <div>
       <h3>Mobile Server</h3>
       <p>The Mobile Server is the Android app that manages your headsets. You register it the
-      same way, then use it to discover a headset over Bluetooth, pair with it by confirming a
-      six digit code shown on both screens, and install the Mobile Companion onto it. From then
+      same way, then install the Mobile Companion onto each headset over a USB OTG cable. Once
+      the Companion is running it joins the server's direct WiFi group and appears in the pairing
+      list, where you confirm a six digit code shown on both screens. From then
       on it distributes module archives over a direct WiFi link and relays the resulting records
       back to your node, so the headsets never need your network credentials.</p>
       <p class="tiny"><a href="docs/mobile-server.html">Read the Mobile Server guide</a></p>
